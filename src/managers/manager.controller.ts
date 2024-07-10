@@ -1,4 +1,11 @@
-import { Body, Controller, HttpStatus, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { Client } from 'src/clients/client.entity';
 import { Manager } from './manager.entity';
@@ -31,7 +38,7 @@ export class ManagerController {
     };
   }
 
-  @Post(':id/remove-client')
+  @Delete(':id/remove-client')
   removeClient(@Param('id') id: string, @Body() body: { client: Client }) {
     const manager = this.managerService.removeClient(id, body.client);
     return {
@@ -62,7 +69,7 @@ export class ManagerController {
     };
   }
 
-  @Post(':id/close-account')
+  @Delete(':id/close-account')
   closeAccount(
     @Param('id') id: string,
     @Body() body: { client: Client; account: Account },
@@ -80,7 +87,7 @@ export class ManagerController {
     };
   }
 
-  @Post(':id/change-account-type')
+  @Patch(':id/change-account-type')
   changeAccountType(
     @Param('id') id: string,
     @Body()

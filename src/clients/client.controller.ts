@@ -1,4 +1,12 @@
-import { Body, Controller, HttpStatus, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ClientService } from './client.service';
 import { Client } from './client.entity';
 import { Account } from 'src/accounts/account.entity';
@@ -8,6 +16,16 @@ import { Manager } from 'src/managers/manager.entity';
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
+  @Get('/')
+  getAllClients() {
+    const clients = this.clientService.getAllClients();
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Lista de clientes carregada!',
+      data: clients,
+    };
+  }
+
   @Post('/create')
   createClient(
     @Body()
@@ -15,6 +33,7 @@ export class ClientController {
       fullName: string;
       address: string;
       phone: string;
+      income: number;
       accountType: 'Checking' | 'Savings';
       manager: Manager;
     },
@@ -23,6 +42,7 @@ export class ClientController {
       body.fullName,
       body.address,
       body.phone,
+      body.income,
       body.accountType,
       body.manager,
     );
@@ -33,7 +53,7 @@ export class ClientController {
     };
   }
 
-  @Post(':id/close-account')
+  @Delete(':id/close-account')
   closeAccount(@Body() body: { client: Client; account: Account }) {
     const client = this.clientService.closeAccount(body.client, body.account);
     return {

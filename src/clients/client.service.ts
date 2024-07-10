@@ -6,14 +6,26 @@ import { Account } from 'src/accounts/account.entity';
 export class ClientService {
   private clients: Client[] = [];
 
+  getAllClients(): Client[] {
+    return this.clients;
+  }
+
   openAccount(
     fullName: string,
     address: string,
     phone: string,
+    income: number,
     accountType: 'Checking' | 'Savings',
     manager: Manager,
   ): Client {
-    const client = new Client(fullName, address, phone, accountType, manager);
+    const client = new Client(
+      fullName,
+      address,
+      phone,
+      income,
+      accountType,
+      manager,
+    );
     this.clients.push(client);
     return client;
   }

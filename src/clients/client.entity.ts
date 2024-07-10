@@ -7,6 +7,7 @@ export class Client {
   public fullName: string;
   public address: string;
   public phone: string;
+  public income: number; // renda salarial
   public accountType: 'Checking' | 'Savings';
   public accounts: Account[];
   public manager: Manager;
@@ -15,6 +16,7 @@ export class Client {
     fullName: string,
     address: string,
     phone: string,
+    income: number,
     accountType: 'Checking' | 'Savings',
     manager: Manager,
   ) {
@@ -22,6 +24,7 @@ export class Client {
     this.fullName = fullName;
     this.address = address;
     this.phone = phone;
+    this.income = income;
     this.accountType = accountType;
     this.accounts = [];
     this.manager = manager;
