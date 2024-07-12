@@ -4,13 +4,13 @@ import {
   Delete,
   Get,
   HttpStatus,
-  Patch,
   Post,
+  Put,
 } from '@nestjs/common';
-import { ClientService } from './client.service';
-import { Client } from './client.entity';
-import { Account } from 'src/accounts/account.entity';
-import { Manager } from 'src/managers/manager.entity';
+import { ClientService } from '../services/client.service';
+import { Client } from '../models/client.model';
+import { Account } from '../models/account.model';
+import { Manager } from '../models/manager.model';
 
 @Controller('clients')
 export class ClientController {
@@ -63,7 +63,7 @@ export class ClientController {
     };
   }
 
-  @Patch(':id/change-account-type')
+  @Put(':id/change-account-type')
   changeAccountType(
     @Body()
     body: {
@@ -73,6 +73,7 @@ export class ClientController {
     },
   ) {
     const client = this.clientService.changeAccountType(
+      body.client,
       body.account,
       body.newType,
     );

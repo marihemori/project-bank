@@ -1,11 +1,11 @@
-import { Account } from './account.entity';
+import { Account } from './account.model';
 
 // Conta corrente
 export class CheckingAccount extends Account {
   private overdraft: number; // cheque especial
 
   constructor(balance: number, overdraft: number) {
-    super(balance, 'Checking');
+    super(balance, 0, 'Checking');
     this.overdraft = overdraft;
   }
 

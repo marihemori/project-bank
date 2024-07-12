@@ -5,11 +5,12 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
 } from '@nestjs/common';
-import { ManagerService } from './manager.service';
-import { Client } from 'src/clients/client.entity';
-import { Manager } from './manager.entity';
-import { Account } from 'src/accounts/account.entity';
+import { ManagerService } from '../services/manager.service';
+import { Client } from 'src/models/client.model';
+import { Manager } from 'src/models/manager.model';
+import { Account } from 'src/models/account.model';
 
 @Controller('managers')
 export class ManagerController {
@@ -87,7 +88,7 @@ export class ManagerController {
     };
   }
 
-  @Patch(':id/change-account-type')
+  @Put(':id/change-account-type')
   changeAccountType(
     @Param('id') id: string,
     @Body()

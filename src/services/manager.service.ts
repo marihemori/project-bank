@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Manager } from './manager.entity';
-import { Client } from 'src/clients/client.entity';
-import { Account } from 'src/accounts/account.entity';
+import { Manager } from '../models/manager.model';
+import { Client } from 'src/models/client.model';
+import { Account } from 'src/models/account.model';
 
 @Injectable()
 export class ManagerService {
@@ -45,7 +45,7 @@ export class ManagerService {
   ): Account {
     const manager = this.managers.find((manager) => manager.id === managerId);
     if (manager) {
-      const account = new Account(0, accountType);
+      const account = new Account(0, 0, accountType);
       account.accountType = accountType;
       client.accounts.push(account);
       return account;

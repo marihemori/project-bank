@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Client } from 'src/clients/client.entity';
+import { Client } from 'src/models/client.model';
 
 export class Manager {
   public id: string;

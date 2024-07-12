@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Client } from './client.entity';
-import { Manager } from 'src/managers/manager.entity';
-import { Account } from 'src/accounts/account.entity';
+import { Client } from '../models/client.model';
+import { Manager } from '../models/manager.model';
+import { Account } from '../models/account.model';
+
 @Injectable()
 export class ClientService {
   private clients: Client[] = [];
@@ -31,18 +32,14 @@ export class ClientService {
   }
 
   closeAccount(client: Client, account: Account): void {
-    const user = this.clients.find((client) =>
-      client.accounts.includes(account),
-    );
-    if (user) {
-      client.accounts = client.accounts.filter((acc) => acc !== account);
-    }
+    client.closeAccount(account);
   }
 
-  changeAccountType(account: Account, newType: 'Checking' | 'Savings') {
-    const client = this.clients.find((client) =>
-      client.accounts.includes(account),
-    );
-    client.accountType = newType;
+  changeAccountType(
+    client: Client,
+    account: Account,
+    newType: 'Checking' | 'Savings',
+  ) {
+    client.changeAccountType(account, newType);
   }
 }

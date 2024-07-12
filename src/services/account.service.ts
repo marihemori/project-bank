@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Account } from './account.entity';
-import { CheckingAccount } from './checkingAccount.entity';
+import { Account } from '../models/account.model';
+import { CheckingAccount } from '../models/checkingAccount.model';
 
 @Injectable()
 export class AccountService {
