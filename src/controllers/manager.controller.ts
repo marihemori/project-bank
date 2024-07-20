@@ -2,19 +2,44 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
-  Put,
 } from '@nestjs/common';
 import { ManagerService } from '../services/manager.service';
-import { Client } from 'src/models/client.model';
-import { Manager } from 'src/models/manager.model';
-import { Account } from 'src/models/account.model';
 
 @Controller('managers')
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
+
+  @Get('/')
+  getAllManagers() {
+    const managers = this.managerService.getAllManagers();
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Lista de gerentes carregada!',
+      data: managers,
+    };
+  }
+
+  @Get('/:id')
+  getManagerById(@Param('id') managerId: string) {
+    try {
+      const manager = this.managerService.getManagerById(managerId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Gerente carregado com sucesso!',
+        data: manager,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
 
   @Post('/create')
   createManager(@Body() body: { fullName: string }) {
@@ -29,9 +54,23 @@ export class ManagerController {
   @Post(':id/add-client')
   addClient(
     @Param('id') id: string,
-    @Body() body: { manager: Manager; client: Client },
+    @Body()
+    body: {
+      fullName: string;
+      address: string;
+      phone: string;
+      income: number;
+      accountType: 'Checking' | 'Savings';
+    },
   ) {
-    const manager = this.managerService.addClient(id, body.client);
+    const manager = this.managerService.addClient(
+      id,
+      body.fullName,
+      body.address,
+      body.phone,
+      body.income,
+      body.accountType,
+    );
     return {
       statusCode: HttpStatus.OK,
       message: 'Cliente adicionado com sucesso!',
@@ -40,8 +79,8 @@ export class ManagerController {
   }
 
   @Delete(':id/remove-client')
-  removeClient(@Param('id') id: string, @Body() body: { client: Client }) {
-    const manager = this.managerService.removeClient(id, body.client);
+  removeClient(@Param('id') id: string, @Body() body: { clientId: string }) {
+    const manager = this.managerService.removeClient(id, body.clientId);
     return {
       statusCode: HttpStatus.OK,
       message: 'Cliente removido com sucesso',
@@ -54,13 +93,13 @@ export class ManagerController {
     @Param('id') id: string,
     @Body()
     body: {
-      client: Client;
+      clientId: string;
       accountType: 'Checking' | 'Savings';
     },
   ) {
     const account = this.managerService.openAccount(
       id,
-      body.client,
+      body.clientId,
       body.accountType,
     );
     return {
@@ -73,14 +112,13 @@ export class ManagerController {
   @Delete(':id/close-account')
   closeAccount(
     @Param('id') id: string,
-    @Body() body: { client: Client; account: Account },
+    @Body() body: { clientId: string; accountId: string },
   ) {
     const manager = this.managerService.closeAccount(
       id,
-      body.client,
-      body.account,
+      body.clientId,
+      body.accountId,
     );
-
     return {
       statusCode: HttpStatus.OK,
       message: 'Conta fechada com sucesso!',
@@ -88,19 +126,22 @@ export class ManagerController {
     };
   }
 
-  @Put(':id/change-account-type')
+  @Patch(':id/change-account-type')
   changeAccountType(
     @Param('id') id: string,
     @Body()
-    body: { client: Client; account: Account; newType: 'Checking' | 'Savings' },
+    body: {
+      clientId: string;
+      accountId: string;
+      newType: 'Checking' | 'Savings';
+    },
   ) {
     const manager = this.managerService.changeAccountType(
       id,
-      body.client,
-      body.account,
+      body.clientId,
+      body.accountId,
       body.newType,
     );
-
     return {
       statusCode: HttpStatus.OK,
       message: 'Tipo de conta alterado com sucesso!',

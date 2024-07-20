@@ -2,19 +2,31 @@ import { Account } from './account.model';
 
 // Conta corrente
 export class CheckingAccount extends Account {
-  private overdraft: number; // cheque especial
-
   constructor(balance: number, overdraft: number) {
-    super(balance, 0, 'Checking');
-    this.overdraft = overdraft;
+    super(balance, overdraft, 'Corrente');
+  }
+
+  // depositar
+  public deposit(value: number): void {
+    this.setBalance(this.getBalance() + value);
   }
 
   // sacar
-  withdraw(value: number): void {
-    if (this.balance + this.overdraft >= value) {
-      this.balance -= value;
+  public withdraw(value: number): void {
+    if (this.getBalance() + this.overdraft >= value) {
+      this.setBalance(this.getBalance() - value);
     } else {
-      throw new Error('Saldo insuficiente');
+      throw new Error('Saldo insuficiente para saque!');
+    }
+  }
+
+  // transferir
+  transfer(destination: Account, value: number) {
+    if (this.getBalance() + this.overdraft >= value) {
+      this.setBalance(this.getBalance() - value);
+      destination.deposit(value);
+    } else {
+      throw new Error('Saldo insuficiente para transferência');
     }
   }
 }

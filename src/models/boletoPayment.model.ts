@@ -15,13 +15,9 @@ export class BoletoPayment extends Payment {
   }
 
   processPayment(): void {
-    if (this.account.hasSufficientFunds(this.amount)) {
-      this.account.deductAmount(this.amount);
-      console.log(
-        `O pagamento do boleto ${this.boletoNumber} no valor de ${this.amount} está sendo processado!`,
-      );
-    } else {
-      throw new Error('Dinheiro insuficiente!');
-    }
+    this.account.processPayment(this.amount);
+    console.log(
+      `O pagamento do boleto ${this.boletoNumber} no valor de ${this.amount} está sendo processado!`,
+    );
   }
 }

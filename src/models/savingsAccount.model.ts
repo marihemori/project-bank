@@ -4,26 +4,39 @@ import { Account } from './account.model';
 export class SavingsAccount extends Account {
   private interestRate: number; // taxa de juros
 
-  constructor(balance: number, interestRate: number) {
-    super(balance, 0, 'Savings');
+  constructor(balance: number, overdraft: number, interestRate: number) {
+    super(balance, overdraft, 'Poupança');
     this.interestRate = interestRate;
   }
 
-  // calcular taxa
-  calculateInterest(): number {
-    return this.balance * this.interestRate;
+  // calcular taxa de transferência
+  public calculateInterest(): number {
+    return this.getBalance() * this.interestRate;
+  }
+
+  // depositar
+  public deposit(value: number): void {
+    this.setBalance(this.getBalance() + value);
+  }
+
+  // sacar
+  public withdraw(value: number): void {
+    if (this.getBalance() >= value) {
+      this.setBalance(this.getBalance() - value);
+    } else {
+      throw new Error('Saldo insuficente!');
+    }
   }
 
   // transferir
-  transfer(destiny: Account, value: number): void {
-    const interest = this.calculateInterest();
-    const totalValue = value + interest;
-
-    this.balance -= totalValue;
-    destiny.balance += value;
-
-    if (totalValue > this.balance) {
-      throw new Error('Saldo insuficiente para fazer a transferência!');
+  transfer(destination: Account, value: number): void {
+    const interest = this.calculateInterest(); // taxa de transferência
+    const totalValue = value + interest; // valor total taxa + valor
+    if (totalValue <= this.getBalance()) {
+      this.setBalance(this.getBalance() - totalValue);
+      destination.deposit(value);
+    } else {
+      throw new Error('Saldo insuficiente para transferência!');
     }
   }
 }

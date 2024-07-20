@@ -4,13 +4,11 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Param,
+  Patch,
   Post,
-  Put,
 } from '@nestjs/common';
 import { ClientService } from '../services/client.service';
-import { Client } from '../models/client.model';
-import { Account } from '../models/account.model';
-import { Manager } from '../models/manager.model';
 
 @Controller('clients')
 export class ClientController {
@@ -26,6 +24,23 @@ export class ClientController {
     };
   }
 
+  @Get('/:id')
+  getClientById(@Param('id') clientId: string) {
+    try {
+      const client = this.clientService.getClientById(clientId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Cliente carregado com sucesso!',
+        data: client,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
+
   @Post('/create')
   createClient(
     @Body()
@@ -35,7 +50,7 @@ export class ClientController {
       phone: string;
       income: number;
       accountType: 'Checking' | 'Savings';
-      manager: Manager;
+      managerId: string;
     },
   ) {
     const client = this.clientService.openAccount(
@@ -44,7 +59,7 @@ export class ClientController {
       body.phone,
       body.income,
       body.accountType,
-      body.manager,
+      body.managerId,
     );
     return {
       statusCode: HttpStatus.CREATED,
@@ -54,8 +69,11 @@ export class ClientController {
   }
 
   @Delete(':id/close-account')
-  closeAccount(@Body() body: { client: Client; account: Account }) {
-    const client = this.clientService.closeAccount(body.client, body.account);
+  closeAccount(
+    @Param('id') clientId: string,
+    @Body() body: { accountId: string },
+  ) {
+    const client = this.clientService.closeAccount(clientId, body.accountId);
     return {
       statusCode: HttpStatus.OK,
       message: 'Conta fechada com sucesso!',
@@ -63,18 +81,18 @@ export class ClientController {
     };
   }
 
-  @Put(':id/change-account-type')
+  @Patch(':id/change-account-type')
   changeAccountType(
+    @Param('id') clientId: string,
     @Body()
     body: {
-      client: Client;
-      account: Account;
+      accountId: string;
       newType: 'Checking' | 'Savings';
     },
   ) {
     const client = this.clientService.changeAccountType(
-      body.client,
-      body.account,
+      clientId,
+      body.accountId,
       body.newType,
     );
     return {

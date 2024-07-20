@@ -10,11 +10,9 @@ export class PixPayment extends Payment {
   }
 
   processPayment(): void {
-    if (this.account.hasSufficientFunds(this.amount)) {
-      this.account.deductAmount(this.amount);
-      console.log(`O pagamento de ${this.amount} está sendo processado!`);
-    } else {
-      throw new Error('Dinheiro insuficiente!');
-    }
+    this.account.processPayment(this.amount);
+    console.log(
+      `O pagamento via PIX para a chave ${this.pixKey} no valor de ${this.amount} está sendo processado!`,
+    );
   }
 }

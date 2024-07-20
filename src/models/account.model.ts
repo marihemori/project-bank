@@ -1,50 +1,62 @@
 import { v4 as uuidv4 } from 'uuid';
 
-export class Account {
-  public id: string;
-  public balance: number;
-  public overdraftLimit: number;
-  public accountType: 'Checking' | 'Savings';
+export abstract class Account {
+  protected id: string; // id da conta
+  protected balance: number; // saldo
+  protected overdraft: number; // cheque especial
+  protected accountType: 'Corrente' | 'Poupança'; // tipo de conta
 
   constructor(
     balance: number,
-    overdraftLimit: number,
-    accountType: 'Checking' | 'Savings',
+    overdraft: number,
+    accountType: 'Corrente' | 'Poupança',
   ) {
     this.id = uuidv4();
     this.balance = balance;
-    this.overdraftLimit = overdraftLimit;
+    this.overdraft = overdraft;
     this.accountType = accountType;
   }
 
-  hasSufficientFunds(amount: number): boolean {
-    return this.balance + this.overdraftLimit >= amount;
+  public getId(): string {
+    return this.id;
   }
 
-  deductAmount(amount: number): void {
-    this.balance -= amount;
+  // obter saldo
+  public getBalance(): number {
+    return this.balance;
   }
 
-  // depositar
-  deposit(value: number): void {
-    this.balance += value;
+  // atualiza o valor do saldo
+  public setBalance(newBalance: number): void {
+    this.balance = newBalance;
   }
 
-  // sacar
-  withdraw(value: number): void {
-    if (this.balance >= value) {
+  public getOverdraft(): number {
+    return this.overdraft;
+  }
+
+  public getAccountType(): 'Checking' | 'Savings' {
+    return this.accountType;
+  }
+
+  // obter a quantidade de dinheiro disponivel somado com saldo + cheque especial
+  public getAvailableFunds(): number {
+    return this.balance + this.overdraft;
+  }
+
+  public processPayment(value: number): void {
+    const availableFunds = this.getAvailableFunds();
+    if (value <= availableFunds) {
       this.balance -= value;
     } else {
       throw new Error('Saldo insuficiente!');
     }
   }
 
-  // transferir
-  transfer(desinty: Account, value: number): void {
-    if (this.balance >= value) {
-      this.balance -= value;
-    } else {
-      throw new Error('Saldo insuficiente para transferência!');
-    }
-  }
+  // depositar
+  abstract deposit(amount: number): void;
+  // sacar
+  abstract withdraw(amount: number): void;
+  // transfer
+  abstract transfer(destination: Account, amount: number);
 }
