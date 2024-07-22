@@ -3,6 +3,8 @@ import { Client } from '../models/client.model';
 import { ManagerService } from './manager.service';
 import { BoletoPayment } from 'src/models/boletoPayment.model';
 import { PixPayment } from 'src/models/pixPayment.model';
+import { CheckingAccount } from 'src/models/checkingAccount.model';
+import { SavingsAccount } from 'src/models/savingsAccount.model';
 
 @Injectable()
 export class ClientService {
@@ -41,11 +43,20 @@ export class ClientService {
     const client = new Client(fullName, address, phone, income, manager);
     this.clients.push(client);
 
+    let account;
+    if (income >= 500) {
+      account = new CheckingAccount(0, 100);
+    } else {
+      account = new SavingsAccount(0, 0, 0.01);
+    }
+
+    client.createAccount(account, 0);
+
     return client;
   }
 
   public closeAccount(clientId: string, accountId: string): Client {
-    const client = this.clients.find((client) => client.getId() === clientId);
+    const client = this.getClientById(clientId);
     if (client) {
       const account = client
         .getAccounts()
@@ -62,7 +73,7 @@ export class ClientService {
     accountId: string,
     newType: 'Checking' | 'Savings',
   ): Client {
-    const client = this.clients.find((client) => client.getId() === clientId);
+    const client = this.getClientById(clientId);
     if (client) {
       const account = client
         .getAccounts()

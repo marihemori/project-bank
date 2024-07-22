@@ -49,8 +49,7 @@ export class ClientController {
       address: string;
       phone: string;
       income: number;
-      accountType: 'Checking' | 'Savings';
-      managerId: string;
+      managerId?: string;
     },
   ) {
     const client = this.clientService.openAccount(
@@ -58,7 +57,6 @@ export class ClientController {
       body.address,
       body.phone,
       body.income,
-      body.accountType,
       body.managerId,
     );
     return {
