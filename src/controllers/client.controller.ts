@@ -9,6 +9,8 @@ import {
   Post,
 } from '@nestjs/common';
 import { ClientService } from '../services/client.service';
+import { CheckingAccount } from 'src/models/checkingAccount.model';
+import { SavingsAccount } from 'src/models/savingsAccount.model';
 
 @Controller('clients')
 export class ClientController {
@@ -42,26 +44,30 @@ export class ClientController {
   }
 
   @Post('/create')
-  createClient(
+  openAccount(
     @Body()
     body: {
       fullName: string;
       address: string;
       phone: string;
       income: number;
+      accountType: 'Corrente' | 'Poupança';
       managerId?: string;
     },
   ) {
+    const accountClass =
+      body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
     const client = this.clientService.openAccount(
       body.fullName,
       body.address,
       body.phone,
       body.income,
+      accountClass,
       body.managerId,
     );
     return {
       statusCode: HttpStatus.CREATED,
-      message: 'Cliente criado com sucesso!',
+      message: 'Conta criada com sucesso!',
       data: client,
     };
   }
@@ -71,12 +77,19 @@ export class ClientController {
     @Param('id') clientId: string,
     @Body() body: { accountId: string },
   ) {
-    const client = this.clientService.closeAccount(clientId, body.accountId);
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Conta fechada com sucesso!',
-      data: client,
-    };
+    try {
+      const client = this.clientService.closeAccount(clientId, body.accountId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Conta fechada com sucesso!',
+        data: client,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
   }
 
   @Patch(':id/change-account-type')
@@ -85,18 +98,27 @@ export class ClientController {
     @Body()
     body: {
       accountId: string;
-      newType: 'Checking' | 'Savings';
+      newType: 'Corrente' | 'Poupança';
     },
   ) {
-    const client = this.clientService.changeAccountType(
-      clientId,
-      body.accountId,
-      body.newType,
-    );
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Tipo de conta atualizada com sucesso!',
-      data: client,
-    };
+    const accountType =
+      body.newType === 'Corrente' ? CheckingAccount : SavingsAccount;
+    try {
+      const client = this.clientService.changeAccountType(
+        clientId,
+        body.accountId,
+        accountType,
+      );
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Tipo de conta atualizada com sucesso!',
+        data: client,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
   }
 }

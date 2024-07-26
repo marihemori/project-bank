@@ -37,31 +37,23 @@ export class ManagerService {
     return this.managers.find((manager) => manager.getId() === id);
   }
 
-  // adicionar cliente
+  // Adicionar cliente ao gerente
   public addClient(
     managerId: string,
     fullName: string,
     address: string,
     phone: string,
     income: number,
-    accountType: 'Checking' | 'Savings',
   ): Manager {
     const manager = this.findManager(managerId);
     if (manager) {
-      const client = new Client(
-        fullName,
-        address,
-        phone,
-        income,
-        accountType,
-        manager,
-      );
+      const client = new Client(fullName, address, phone, income, manager);
       manager.clients.push(client);
     }
     return manager;
   }
 
-  // remover cliente
+  // Remover cliente do gerente
   public removeClient(managerId: string, clientId: string): Manager {
     const manager = this.findManager(managerId);
     if (manager) {
@@ -72,11 +64,10 @@ export class ManagerService {
     return manager;
   }
 
-  // abrir conta
   public openAccount(
     managerId: string,
     clientId: string,
-    accountType: 'Checking' | 'Savings',
+    accountType: typeof CheckingAccount | typeof SavingsAccount,
   ): Account {
     const manager = this.findManager(managerId);
     if (manager) {
@@ -84,14 +75,12 @@ export class ManagerService {
         (client) => client.getId() === clientId,
       );
       if (client) {
-        let account: Account;
-        if (accountType === 'Checking') {
-          account = new CheckingAccount(0, 500);
-        } else {
-          account = new SavingsAccount(0, 0, 0.01);
+        if (accountType === CheckingAccount && client.getIncome() < 500) {
+          throw new Error(
+            'A renda deve ser de pelo menos R$ 500,00 para abrir uma conta corrente.',
+          );
         }
-        client.createAccount(accountType);
-        return account;
+        return client.openAccount(accountType);
       } else {
         throw new Error('Cliente não encontrado!');
       }
@@ -132,7 +121,7 @@ export class ManagerService {
     managerId: string,
     clientId: string,
     accountId: string,
-    newType: 'Checking' | 'Savings',
+    newType: typeof CheckingAccount | typeof SavingsAccount,
   ): Manager {
     const manager = this.findManager(managerId);
     if (manager) {
@@ -144,8 +133,8 @@ export class ManagerService {
         if (accountIndex !== -1) {
           let newAccount: Account;
           const oldAccount = client.getAccounts()[accountIndex];
-          if (newType === 'Checking') {
-            newAccount = new CheckingAccount(oldAccount.getBalance(), 500); // Exemplo de cheque especial padrão
+          if (newType === CheckingAccount) {
+            newAccount = new CheckingAccount(oldAccount.getBalance(), 500);
           } else {
             newAccount = new SavingsAccount(
               oldAccount.getBalance(),

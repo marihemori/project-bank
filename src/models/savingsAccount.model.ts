@@ -15,14 +15,14 @@ export class SavingsAccount extends Account {
   }
 
   // depositar
-  public deposit(value: number): void {
-    this.setBalance(this.getBalance() + value);
+  public deposit(amount: number): void {
+    this.setBalance(this.getBalance() + amount);
   }
 
   // sacar
-  public withdraw(value: number): void {
-    if (this.getBalance() >= value) {
-      this.setBalance(this.getBalance() - value);
+  public withdraw(amount: number): void {
+    if (this.getBalance() >= amount) {
+      this.setBalance(this.getBalance() - amount);
     } else {
       throw new Error('Saldo insuficente!');
     }

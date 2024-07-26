@@ -6,5 +6,6 @@ import { ManagerService } from 'src/services/manager.service';
 @Module({
   providers: [ClientService, ManagerService],
   controllers: [ClientController],
+  exports: [ClientService],
 })
 export class ClientModule {}

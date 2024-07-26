@@ -9,6 +9,8 @@ import {
   Post,
 } from '@nestjs/common';
 import { ManagerService } from '../services/manager.service';
+import { CheckingAccount } from 'src/models/checkingAccount.model';
+import { SavingsAccount } from 'src/models/savingsAccount.model';
 
 @Controller('managers')
 export class ManagerController {
@@ -60,7 +62,6 @@ export class ManagerController {
       address: string;
       phone: string;
       income: number;
-      accountType: 'Checking' | 'Savings';
     },
   ) {
     const manager = this.managerService.addClient(
@@ -69,7 +70,6 @@ export class ManagerController {
       body.address,
       body.phone,
       body.income,
-      body.accountType,
     );
     return {
       statusCode: HttpStatus.OK,
@@ -94,13 +94,15 @@ export class ManagerController {
     @Body()
     body: {
       clientId: string;
-      accountType: 'Checking' | 'Savings';
+      accountType: 'Corrente' | 'Poupança';
     },
   ) {
+    const accountClass =
+      body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
     const account = this.managerService.openAccount(
       id,
       body.clientId,
-      body.accountType,
+      accountClass,
     );
     return {
       statusCode: HttpStatus.OK,
@@ -133,14 +135,16 @@ export class ManagerController {
     body: {
       clientId: string;
       accountId: string;
-      newType: 'Checking' | 'Savings';
+      newType: 'Corrente' | 'Poupança';
     },
   ) {
+    const accountType =
+      body.newType === 'Corrente' ? CheckingAccount : SavingsAccount;
     const manager = this.managerService.changeAccountType(
       id,
       body.clientId,
       body.accountId,
-      body.newType,
+      accountType,
     );
     return {
       statusCode: HttpStatus.OK,

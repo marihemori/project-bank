@@ -35,7 +35,7 @@ export abstract class Account {
     return this.overdraft;
   }
 
-  public getAccountType(): 'Checking' | 'Savings' {
+  public getAccountType(): 'Corrente' | 'Poupança' {
     return this.accountType;
   }
 
@@ -56,7 +56,7 @@ export abstract class Account {
   // depositar
   abstract deposit(amount: number): void;
   // sacar
-  abstract withdraw(amount: number): void;
+  abstract withdraw(value: number): void;
   // transfer
-  abstract transfer(destination: Account, amount: number);
+  abstract transfer(destination: Account, value: number);
 }

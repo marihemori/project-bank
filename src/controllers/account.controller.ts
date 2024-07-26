@@ -1,29 +1,71 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
-import { AccountService } from '../services/account.service';
+import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { Account } from '../models/account.model';
+import { AccountService } from '../services/account.service';
 
 @Controller('accounts')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
-  @Post(':id/deposit')
-  deposit(@Body() body: { account: Account; value: number }) {
-    this.accountService.deposit(body.account, body.value);
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Depósito realizado com sucesso!',
-      data: body.account,
-    };
+  // Verificar saldo
+  @Get(':accountId/balance')
+  verifyBalance(@Param('accountId') accountId: string) {
+    try {
+      const balance = this.accountService.verifyBalance(accountId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Saldo verificado com sucesso!',
+        data: { accountId, balance },
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
   }
 
-  @Post(':id/withdraw')
-  withdraw(@Body() body: { account: Account; value: number }) {
+  // Método de depósito
+  @Post(':accountId/deposit')
+  deposit(
+    @Param('accountId') accountId: string,
+    @Body() body: { amount: number },
+  ) {
     try {
-      this.accountService.withdraw(body.account, body.value);
+      this.accountService.deposit(accountId, body.amount);
+      const newBalance = this.accountService.verifyBalance(accountId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Depósito realizado com sucesso!',
+        data: {
+          accountId,
+          newBalance,
+        },
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
+
+  // Sacar
+  @Post(':accountId/withdraw')
+  withdraw(
+    @Param('accountId') accountId: string,
+    @Body() body: { amount: number },
+  ) {
+    console.log(`Valor recebido para saque: ${body.amount}`);
+    try {
+      this.accountService.withdraw(accountId, body.amount);
+      const newBalance = this.accountService.verifyBalance(accountId);
       return {
         statusCode: HttpStatus.OK,
         message: 'Saque realizado com sucesso!',
-        data: body.account,
+        data: {
+          accountId,
+          newBalance,
+        },
       };
     } catch (error) {
       return {
@@ -33,16 +75,7 @@ export class AccountController {
     }
   }
 
-  @Post(':id/balance')
-  verifyBalance(@Body() body: { account: Account }) {
-    const balance = this.accountService.verifyBalance(body.account);
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Saldo verificado com sucesso',
-      data: { balance },
-    };
-  }
-
+  // Tranferir
   @Post(':id/transfer')
   transfer(
     @Body() body: { fromAccount: Account; toAccount: Account; value: number },

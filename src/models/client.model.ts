@@ -18,7 +18,6 @@ export class Client {
     address: string,
     phone: string,
     income: number,
-    account: CheckingAccount | SavingsAccount,
     manager?: Manager,
   ) {
     this.id = uuidv4();
@@ -27,7 +26,6 @@ export class Client {
     this.phone = phone;
     this.income = income;
     this.manager = manager;
-    this.accounts.push(account);
   }
 
   public getId(): string {
@@ -58,37 +56,50 @@ export class Client {
     return this.manager;
   }
 
-  // abrir conta
-  public createAccount(
-    accountType: 'Corrente' | 'Poupança',
-    initialBalance: number,
+  public addAccount(account: CheckingAccount | SavingsAccount): void {
+    this.accounts.push(account);
+  }
+
+  // Abrir uma conta para o cliente
+  public openAccount(
+    accountType: typeof CheckingAccount | typeof SavingsAccount,
   ): Account {
-    const overdraft = accountType === 'Corrente' ? 100 : 0;
-    if (accountType === 'Corrente') {
-      if (initialBalance < 500) {
-        throw new Error(
-          'O saldo inicial deve ser de pelo menos R$ 500,00 para abrir uma conta corrente.',
-        );
-      }
-      return new CheckingAccount(initialBalance, overdraft);
-    } else {
-      return new SavingsAccount(initialBalance, overdraft, 0.01);
+    if (accountType === CheckingAccount && this.income < 500) {
+      throw new Error(
+        'A renda deve ser de pelo menos R$500,00 para abrir uma conta corrente!',
+      );
+    }
+    if (accountType === CheckingAccount && this.income > 500) {
+      const account = new CheckingAccount(0, 100);
+      this.addAccount(account);
+      return account;
+    }
+    if (accountType === SavingsAccount) {
+      const account = new SavingsAccount(0, 0, 0.01);
+      this.addAccount(account);
+      return account;
     }
   }
 
-  // fechar contar
+  // Fechar conta do cliente
   public closeAccount(account: Account): void {
     this.accounts = this.accounts.filter(
       (acc) => acc.getId() !== account.getId(),
     );
   }
 
-  // mudar tipo da conta
+  // Mudar tipo da conta do cliente
   public changeAccountType(
     account: Account,
-    newType: 'Checking' | 'Savings',
+    newType: typeof CheckingAccount | typeof SavingsAccount,
   ): void {
     this.closeAccount(account);
-    this.createAccount(newType, 0);
+    let newAccount;
+    if (newType === CheckingAccount) {
+      newAccount = new CheckingAccount(0, 100);
+    } else {
+      newAccount = new SavingsAccount(0, 0, 0.01);
+    }
+    this.addAccount(newAccount);
   }
 }

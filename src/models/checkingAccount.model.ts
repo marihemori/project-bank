@@ -7,8 +7,8 @@ export class CheckingAccount extends Account {
   }
 
   // depositar
-  public deposit(value: number): void {
-    this.setBalance(this.getBalance() + value);
+  public deposit(amount: number): void {
+    this.setBalance(this.getBalance() + amount);
   }
 
   // sacar
