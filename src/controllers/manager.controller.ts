@@ -55,27 +55,27 @@ export class ManagerController {
 
   @Post(':id/add-client')
   addClient(
-    @Param('id') id: string,
+    @Param('managerId') managerId: string,
     @Body()
     body: {
-      fullName: string;
-      address: string;
-      phone: string;
-      income: number;
+      clientId: string;
     },
   ) {
-    const manager = this.managerService.addClient(
-      id,
-      body.fullName,
-      body.address,
-      body.phone,
-      body.income,
-    );
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Cliente adicionado com sucesso!',
-      data: manager,
-    };
+    try {
+      const manager = this.managerService.addClient(managerId, body.clientId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Cliente adicionado ao gerente com sucesso!',
+        data: {
+          manager,
+        },
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: error.message,
+      };
+    }
   }
 
   @Delete(':id/remove-client')

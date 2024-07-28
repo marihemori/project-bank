@@ -56,6 +56,10 @@ export class Client {
     return this.manager;
   }
 
+  public setManager(manager: Manager): void {
+    this.manager = manager;
+  }
+
   public addAccount(account: CheckingAccount | SavingsAccount): void {
     this.accounts.push(account);
   }

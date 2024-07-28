@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Manager } from '../models/manager.model';
-import { Client } from 'src/models/client.model';
+// import { Client } from 'src/models/client.model';
+import { ClientService } from './client.service';
 import { Account } from 'src/models/account.model';
 import { CheckingAccount } from 'src/models/checkingAccount.model';
 import { SavingsAccount } from 'src/models/savingsAccount.model';
@@ -8,6 +9,8 @@ import { SavingsAccount } from 'src/models/savingsAccount.model';
 @Injectable()
 export class ManagerService {
   private managers: Manager[] = [];
+
+  constructor(private readonly clientService: ClientService) {}
 
   // Listar gerentes
   public getAllManagers(): Manager[] {
@@ -38,17 +41,16 @@ export class ManagerService {
   }
 
   // Adicionar cliente ao gerente
-  public addClient(
-    managerId: string,
-    fullName: string,
-    address: string,
-    phone: string,
-    income: number,
-  ): Manager {
+  public addClient(managerId: string, clientId: string): Manager {
     const manager = this.findManager(managerId);
     if (manager) {
-      const client = new Client(fullName, address, phone, income, manager);
-      manager.clients.push(client);
+      const client = this.clientService.getClientById(clientId);
+      if (client) {
+        manager.clients.push(client);
+        client.setManager(manager); // atualiza o gerente do cliente
+      } else {
+        throw new Error('Cliente não encontrado!');
+      }
     }
     return manager;
   }
