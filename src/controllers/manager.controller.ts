@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   HttpStatus,
   Param,
   Patch,
@@ -11,29 +12,44 @@ import {
 import { ManagerService } from '../services/manager.service';
 import { CheckingAccount } from 'src/models/checkingAccount.model';
 import { SavingsAccount } from 'src/models/savingsAccount.model';
+import { ManagerDto } from 'src/dtos/manager.dto';
+
+export interface ApiResponse<data> {
+  statusCode: number;
+  message: string;
+  data?: data;
+}
 
 @Controller('managers')
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
 
   @Get('/')
-  getAllManagers() {
-    const managers = this.managerService.getAllManagers();
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Lista de gerentes carregada!',
-      data: managers,
-    };
+  async getAllManagers(): Promise<ApiResponse<ManagerDto[]>> {
+    try {
+      const managers = this.managerService.getAllManagers();
+      const managerDto = managers.map((manager) => new ManagerDto(manager));
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Lista de gerentes carregada!',
+        data: managerDto,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
   }
 
   @Get('/:id')
-  getManagerById(@Param('id') managerId: string) {
+  async getManagerById(
+    @Param('id') managerId: string,
+  ): Promise<ApiResponse<ManagerDto>> {
     try {
       const manager = this.managerService.getManagerById(managerId);
+      const managerDto = new ManagerDto(manager);
       return {
         statusCode: HttpStatus.OK,
         message: 'Gerente carregado com sucesso!',
-        data: manager,
+        data: managerDto,
       };
     } catch (error) {
       return {
@@ -53,16 +69,19 @@ export class ManagerController {
     };
   }
 
-  @Post(':id/add-client')
-  addClient(
-    @Param('managerId') managerId: string,
+  @Post(':id/add-customer')
+  addCustomer(
+    @Param('id') managerId: string,
     @Body()
     body: {
-      clientId: string;
+      customerId: string;
     },
   ) {
     try {
-      const manager = this.managerService.addClient(managerId, body.clientId);
+      const manager = this.managerService.addCustomer(
+        managerId,
+        body.customerId,
+      );
       return {
         statusCode: HttpStatus.OK,
         message: 'Cliente adicionado ao gerente com sucesso!',
@@ -78,9 +97,12 @@ export class ManagerController {
     }
   }
 
-  @Delete(':id/remove-client')
-  removeClient(@Param('id') id: string, @Body() body: { clientId: string }) {
-    const manager = this.managerService.removeClient(id, body.clientId);
+  @Delete(':id/remove-customer')
+  removeCustomer(
+    @Param('id') id: string,
+    @Body() body: { customerId: string },
+  ) {
+    const manager = this.managerService.removeCustomer(id, body.customerId);
     return {
       statusCode: HttpStatus.OK,
       message: 'Cliente removido com sucesso',
@@ -93,7 +115,7 @@ export class ManagerController {
     @Param('id') id: string,
     @Body()
     body: {
-      clientId: string;
+      customerId: string;
       accountType: 'Corrente' | 'Poupança';
     },
   ) {
@@ -101,7 +123,7 @@ export class ManagerController {
       body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
     const account = this.managerService.openAccount(
       id,
-      body.clientId,
+      body.customerId,
       accountClass,
     );
     return {
@@ -114,11 +136,11 @@ export class ManagerController {
   @Delete(':id/close-account')
   closeAccount(
     @Param('id') id: string,
-    @Body() body: { clientId: string; accountId: string },
+    @Body() body: { customerId: string; accountId: string },
   ) {
     const manager = this.managerService.closeAccount(
       id,
-      body.clientId,
+      body.customerId,
       body.accountId,
     );
     return {
@@ -133,7 +155,7 @@ export class ManagerController {
     @Param('id') id: string,
     @Body()
     body: {
-      clientId: string;
+      customerId: string;
       accountId: string;
       newType: 'Corrente' | 'Poupança';
     },
@@ -142,7 +164,7 @@ export class ManagerController {
       body.newType === 'Corrente' ? CheckingAccount : SavingsAccount;
     const manager = this.managerService.changeAccountType(
       id,
-      body.clientId,
+      body.customerId,
       body.accountId,
       accountType,
     );

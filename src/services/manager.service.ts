@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Manager } from '../models/manager.model';
-// import { Client } from 'src/models/client.model';
-import { ClientService } from './client.service';
+import { CustomerService } from './customer.service';
 import { Account } from 'src/models/account.model';
 import { CheckingAccount } from 'src/models/checkingAccount.model';
 import { SavingsAccount } from 'src/models/savingsAccount.model';
@@ -10,7 +9,7 @@ import { SavingsAccount } from 'src/models/savingsAccount.model';
 export class ManagerService {
   private managers: Manager[] = [];
 
-  constructor(private readonly clientService: ClientService) {}
+  constructor(private readonly customerService: CustomerService) {}
 
   // Listar gerentes
   public getAllManagers(): Manager[] {
@@ -41,25 +40,28 @@ export class ManagerService {
   }
 
   // Adicionar cliente ao gerente
-  public addClient(managerId: string, clientId: string): Manager {
+  public addCustomer(managerId: string, customerId: string): Manager {
     const manager = this.findManager(managerId);
-    if (manager) {
-      const client = this.clientService.getClientById(clientId);
-      if (client) {
-        manager.clients.push(client);
-        client.setManager(manager); // atualiza o gerente do cliente
-      } else {
-        throw new Error('Cliente não encontrado!');
-      }
+
+    if (!manager) {
+      throw new Error('Gerente não encontrado!');
     }
+
+    const customer = this.customerService.getCustomerById(customerId);
+    if (!customer) {
+      throw new Error('Cliente não encontrado!');
+    }
+
+    manager.addCustomer(customer);
+    customer.setManager(manager); // Atualiza o gerente do cliente
     return manager;
   }
 
   // Remover cliente do gerente
-  public removeClient(managerId: string, clientId: string): Manager {
+  public removeCustomer(managerId: string, clientId: string): Manager {
     const manager = this.findManager(managerId);
     if (manager) {
-      manager.clients = manager.clients.filter(
+      manager.customers = manager.customers.filter(
         (client) => client.getId() !== clientId,
       );
     }
@@ -73,7 +75,7 @@ export class ManagerService {
   ): Account {
     const manager = this.findManager(managerId);
     if (manager) {
-      const client = manager.clients.find(
+      const client = manager.customers.find(
         (client) => client.getId() === clientId,
       );
       if (client) {
@@ -99,7 +101,7 @@ export class ManagerService {
   ): Manager {
     const manager = this.findManager(managerId);
     if (manager) {
-      const client = manager.clients.find((c) => c.getId() === clientId);
+      const client = manager.customers.find((c) => c.getId() === clientId);
       if (client) {
         const account = client
           .getAccounts()
@@ -127,7 +129,7 @@ export class ManagerService {
   ): Manager {
     const manager = this.findManager(managerId);
     if (manager) {
-      const client = manager.clients.find((c) => c.getId() === clientId);
+      const client = manager.customers.find((c) => c.getId() === clientId);
       if (client) {
         const accountIndex = client
           .getAccounts()

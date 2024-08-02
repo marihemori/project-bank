@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Account } from '../models/account.model';
-import { ClientService } from './client.service';
+import { CustomerService } from './customer.service';
 
 @Injectable()
 export class AccountService {
   private accounts: Account[] = [];
 
-  constructor(private readonly clientService: ClientService) {}
+  constructor(private readonly customerService: CustomerService) {}
 
   // Adicionar conta
   public addAccount(account: Account): void {
@@ -14,8 +14,8 @@ export class AccountService {
   }
 
   public findAccount(accountId: string): Account {
-    for (const client of this.clientService.getAllClients()) {
-      const account = client
+    for (const customer of this.customerService.getAllCustomers()) {
+      const account = customer
         .getAccounts()
         .find((acc) => acc.getId() === accountId);
       if (account) {

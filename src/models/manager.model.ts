@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Client } from 'src/models/client.model';
+import { Customer } from 'src/models/customer.model';
 
 export class Manager {
   private id: string;
   private fullName: string;
-  public clients: Client[];
+  public customers: Customer[] = [];
 
   constructor(fullname: string) {
     this.id = uuidv4();
     this.fullName = fullname;
-    this.clients = [];
+    this.customers = [];
   }
 
   getId(): string {
@@ -20,13 +20,15 @@ export class Manager {
     return this.fullName;
   }
 
-  public addClient(client: Client): void {
-    this.clients.push(client);
+  public addCustomer(customer: Customer): void {
+    this.customers.push(customer);
     console.log('Cliente adicionado');
   }
 
-  public removeClient(clientId: string): void {
-    this.clients = this.clients.filter((client) => client.getId() !== clientId);
+  public removeCustomer(customerId: string): void {
+    this.customers = this.customers.filter(
+      (customer) => customer.getId() !== customerId,
+    );
     console.log('Cliente removido');
   }
 }

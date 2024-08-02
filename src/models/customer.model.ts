@@ -4,7 +4,7 @@ import { Manager } from './manager.model';
 import { CheckingAccount } from './checkingAccount.model';
 import { SavingsAccount } from './savingsAccount.model';
 
-export class Client {
+export class Customer {
   private id: string;
   private fullName: string;
   private address: string;
