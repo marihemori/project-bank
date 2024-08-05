@@ -14,6 +14,8 @@ import { CheckingAccount } from 'src/models/checkingAccount.model';
 import { SavingsAccount } from 'src/models/savingsAccount.model';
 import { Manager } from 'src/models/manager.model';
 import { CustomerDto } from '../dtos/customer.dto';
+import { AccountDto } from 'src/dtos/account.dto';
+// import { AccountDto } from 'src/dtos/account.dto';
 
 export interface ApiResponse<data> {
   statusCode: number;
@@ -25,6 +27,7 @@ export interface ApiResponse<data> {
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
+  // Lista todos os clientes
   @Get('/')
   async getAllCustomers(): Promise<ApiResponse<CustomerDto[]>> {
     try {
@@ -42,6 +45,7 @@ export class CustomerController {
     }
   }
 
+  // Lista um único cliente
   @Get('/:id')
   async getCustomerById(
     @Param('id') id: string,
@@ -62,6 +66,7 @@ export class CustomerController {
     }
   }
 
+  // Cria um novo cliente
   @Post('/create')
   async openAccount(
     @Body('fullname') fullname: string,
@@ -93,26 +98,7 @@ export class CustomerController {
     }
   }
 
-  @Delete('/:id/close-account')
-  async closeAccount(
-    @Param('id') id: string,
-    @Body() body: { accountId: string },
-  ): Promise<ApiResponse<any>> {
-    try {
-      const customer = this.customerService.closeAccount(id, body.accountId);
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'Conta fechada com sucesso!',
-        data: customer,
-      };
-    } catch (error) {
-      return {
-        statusCode: HttpStatus.NOT_FOUND,
-        message: error.message,
-      };
-    }
-  }
-
+  // Mudar tipo de conta
   @Patch(':id/change-account-type')
   async changeAccountType(
     @Param('id') customerId: string,
@@ -135,6 +121,118 @@ export class CustomerController {
         statusCode: HttpStatus.OK,
         message: 'Tipo de conta atualizada com sucesso!',
         data: customerDto,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
+
+  // Pagar boleto
+  @Post('/:id/pay-boleto')
+  async payBoleto(
+    @Param('id') customerId: string,
+    @Body()
+    body: {
+      accountId: string;
+      amount: number;
+      boletoNumber: string;
+    },
+  ): Promise<ApiResponse<{ customer: CustomerDto; account: AccountDto }>> {
+    try {
+      const { customer, account } = await this.customerService.payBoleto(
+        customerId,
+        body.accountId,
+        body.amount,
+        body.boletoNumber,
+      );
+
+      //criação dos dtos
+      // const customerDto = new CustomerDto(customer);
+      // const accountDto = new AccountDto(account);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Boleto pago com sucesso!',
+        data: {
+          customer,
+          account,
+        },
+        // data: {
+        //   customer: customerDto,
+        //   account: accountDto,
+        // },
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
+
+  // Pagar pix
+  @Post('/:id/pay-pix')
+  async payPix(
+    @Param('id') customerId: string,
+    @Body()
+    body: {
+      accountId: string;
+      amount: number;
+      pixKey: string;
+    },
+  ): Promise<ApiResponse<CustomerDto>> {
+    try {
+      this.customerService.payPix(
+        customerId,
+        body.accountId,
+        body.amount,
+        body.pixKey,
+      );
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Pix pago com sucesso!',
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
+
+  // Fechar uma conta
+  @Delete('/:id/close-account')
+  async closeAccount(
+    @Param('id') id: string,
+    @Body() body: { accountId: string },
+  ): Promise<ApiResponse<CustomerDto>> {
+    try {
+      const customer = this.customerService.closeAccount(id, body.accountId);
+      const customerDto = new CustomerDto(customer); // converte para CustomerDto
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Conta fechada com sucesso!',
+        data: customerDto,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
+
+  // Excluir um cliente
+  @Delete('/:id/delete')
+  async deleteCustomer(@Param('id') customerId: string) {
+    try {
+      this.customerService.deleteClient(customerId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Cliente excluído com sucesso!',
       };
     } catch (error) {
       return {

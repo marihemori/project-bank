@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PixPayment } from '../models/pixPayment.model';
 import { BoletoPayment } from '../models/boletoPayment.model';
 import { Payment } from '../models/payment.model';
-import { Account } from 'src/models/account.model';
+import { AccountService } from './account.service';
 
 @Injectable()
 export class PaymentService {
@@ -15,9 +15,16 @@ export class PaymentService {
   processPixPayment(
     amount: number,
     pixKey: string,
-    account: Account,
+    accountId: string,
+    accountService: AccountService,
   ): PixPayment {
-    const payment = new PixPayment(amount, new Date(), pixKey, account);
+    const payment = new PixPayment(
+      amount,
+      new Date(),
+      pixKey,
+      accountId,
+      accountService,
+    );
     try {
       payment.processPayment();
       this.payments.push(payment);
@@ -30,13 +37,15 @@ export class PaymentService {
   processBoletoPayment(
     amount: number,
     boletoNumber: string,
-    account: Account,
+    accountId: string,
+    accountService: AccountService,
   ): BoletoPayment {
     const payment = new BoletoPayment(
       amount,
       new Date(),
       boletoNumber,
-      account,
+      accountId,
+      accountService,
     );
     try {
       payment.processPayment();

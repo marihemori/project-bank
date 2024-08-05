@@ -45,9 +45,16 @@ export abstract class Account {
   }
 
   public processPayment(value: number): void {
-    const availableFunds = this.getAvailableFunds();
-    if (value <= availableFunds) {
+    if (this.getAccountType() === 'Poupança') {
       this.balance -= value;
+    }
+    if (this.getAccountType() === 'Corrente') {
+      const availableFunds = this.getAvailableFunds();
+      if (value <= availableFunds) {
+        this.balance -= value;
+      } else {
+        throw new Error('Saldo insuficiente!');
+      }
     } else {
       throw new Error('Saldo insuficiente!');
     }
@@ -59,4 +66,6 @@ export abstract class Account {
   abstract withdraw(value: number): void;
   // transfer
   abstract transfer(destination: Account, value: number);
+  // atualizar saldo
+  abstract updateBalance(amount: number): void;
 }

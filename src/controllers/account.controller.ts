@@ -1,20 +1,42 @@
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
-import { Account } from '../models/account.model';
+// import { Account } from '../models/account.model';
 import { AccountService } from '../services/account.service';
+import { AccountDto } from 'src/dtos/account.dto';
+
+export interface ApiResponse<data> {
+  statusCode: number;
+  message: string;
+  data?: data;
+}
+
+interface TransferResponseData {
+  fromAccount: AccountDto;
+  toAccount: AccountDto;
+}
+
+export interface TransferResponse<TransferResponseData> {
+  statusCode: number;
+  message: string;
+  data?: TransferResponseData;
+}
 
 @Controller('accounts')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   // Verificar saldo
-  @Get(':accountId/balance')
-  verifyBalance(@Param('accountId') accountId: string) {
+  @Get('/:customerId/:accountId/balance')
+  async verifyBalance(
+    @Param('customerId') customerId: string,
+    @Param('accountId') accountId: string,
+  ): Promise<ApiResponse<AccountDto>> {
     try {
-      const balance = this.accountService.verifyBalance(accountId);
+      const balance = this.accountService.verifyBalance(customerId, accountId);
+      const accountDto = new AccountDto(balance); // converte para AccountDto
       return {
         statusCode: HttpStatus.OK,
         message: 'Saldo verificado com sucesso!',
-        data: { accountId, balance },
+        data: accountDto,
       };
     } catch (error) {
       return {
@@ -24,22 +46,24 @@ export class AccountController {
     }
   }
 
-  // Método de depósito
-  @Post(':accountId/deposit')
-  deposit(
+  // Depositar
+  @Post('/:customerId/:accountId/deposit')
+  async deposit(
+    @Param('customerId') customerId: string,
     @Param('accountId') accountId: string,
     @Body() body: { amount: number },
-  ) {
+  ): Promise<ApiResponse<AccountDto>> {
     try {
-      this.accountService.deposit(accountId, body.amount);
-      const newBalance = this.accountService.verifyBalance(accountId);
+      this.accountService.deposit(accountId, customerId, body.amount);
+      const newBalance = this.accountService.verifyBalance(
+        customerId,
+        accountId,
+      );
+      const accountDto = new AccountDto(newBalance);
       return {
         statusCode: HttpStatus.OK,
         message: 'Depósito realizado com sucesso!',
-        data: {
-          accountId,
-          newBalance,
-        },
+        data: accountDto,
       };
     } catch (error) {
       return {
@@ -50,22 +74,23 @@ export class AccountController {
   }
 
   // Sacar
-  @Post(':accountId/withdraw')
-  withdraw(
+  @Post('/:customerId/:accountId/withdraw')
+  async withdraw(
+    @Param('customerId') customerId: string,
     @Param('accountId') accountId: string,
     @Body() body: { amount: number },
-  ) {
-    console.log(`Valor recebido para saque: ${body.amount}`);
+  ): Promise<ApiResponse<AccountDto>> {
     try {
-      this.accountService.withdraw(accountId, body.amount);
-      const newBalance = this.accountService.verifyBalance(accountId);
+      this.accountService.withdraw(accountId, customerId, body.amount);
+      const newBalance = this.accountService.verifyBalance(
+        customerId,
+        accountId,
+      );
+      const accountDto = new AccountDto(newBalance);
       return {
         statusCode: HttpStatus.OK,
         message: 'Saque realizado com sucesso!',
-        data: {
-          accountId,
-          newBalance,
-        },
+        data: accountDto,
       };
     } catch (error) {
       return {
@@ -76,20 +101,34 @@ export class AccountController {
   }
 
   // Tranferir
-  @Post(':id/transfer')
-  transfer(
-    @Body() body: { fromAccount: Account; toAccount: Account; value: number },
-  ) {
+  @Post('/:customerId/:accountId/transfer')
+  async transfer(
+    @Param('customerId') customerId: string,
+    @Param('accountId') fromAccountId: string,
+    @Body() body: { toAccountId: string; amount: number; customerIdTo: string },
+  ): Promise<TransferResponse<TransferResponseData>> {
     try {
-      this.accountService.transfer(
-        body.fromAccount,
-        body.toAccount,
-        body.value,
+      const { toAccountId, amount, customerIdTo } = body;
+      const { fromAccount, toAccount } = await this.accountService.transfer(
+        fromAccountId,
+        toAccountId,
+        customerId,
+        customerIdTo,
+        amount,
       );
+      console.log(fromAccount, toAccount);
+      console.log(this.accountService);
+      // const accountDto = new AccountDto(transfer);
+      const fromAccountDto = new AccountDto(fromAccount);
+      const toAccountDto = new AccountDto(toAccount);
+
       return {
         statusCode: HttpStatus.OK,
         message: 'Transferência realizada com sucesso!',
-        data: { fromAccount: body.fromAccount, toAccount: body.toAccount },
+        data: {
+          fromAccount: fromAccountDto,
+          toAccount: toAccountDto,
+        },
       };
     } catch (error) {
       return {

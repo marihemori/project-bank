@@ -29,4 +29,12 @@ export class CheckingAccount extends Account {
       throw new Error('Saldo insuficiente para transferência');
     }
   }
+
+  // atualizar saldo
+  updateBalance(amount: number): void {
+    this.balance += amount;
+    if (this.balance < -this.overdraft) {
+      throw new Error('Saldo insuficiente');
+    }
+  }
 }

@@ -106,4 +106,15 @@ export class Customer {
     }
     this.addAccount(newAccount);
   }
+
+  public updateBalance(accountId: string, amount: number): void {
+    const account = this.accounts.find(
+      (acc) => acc.getId() === account.getId(),
+    );
+    if (!account) {
+      throw new Error('Conta não encontrada!');
+    }
+
+    account.updateBalance(amount);
+  }
 }

@@ -1,18 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Account } from './account.model';
 
 export abstract class Payment {
   public id = uuidv4();
   public amount: number;
   public date: Date;
-  public account: Account;
+  public accountId: string;
 
-  constructor(amount: number, date: Date, account: Account) {
-    this.id = uuidv4();
+  constructor(amount: number, date: Date, accountId: string) {
     this.amount = amount;
     this.date = date;
-    this.account = account;
+    this.accountId = accountId;
   }
 
-  abstract processPayment(): void;
+  abstract processPayment(customerId: string, accountId: string): any;
 }

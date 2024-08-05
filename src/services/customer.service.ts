@@ -1,30 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Customer } from '../models/customer.model';
 import { BoletoPayment } from 'src/models/boletoPayment.model';
 import { PixPayment } from 'src/models/pixPayment.model';
 import { CheckingAccount } from 'src/models/checkingAccount.model';
 import { SavingsAccount } from 'src/models/savingsAccount.model';
 import { Manager } from 'src/models/manager.model';
+import { AccountService } from './account.service';
+import { CustomerDto } from 'src/dtos/customer.dto';
+import { AccountDto } from 'src/dtos/account.dto';
+// import { Account } from 'src/models/account.model';
 
 @Injectable()
 export class CustomerService {
   private customers: Customer[] = [];
 
-  // Listar todos os clientes
+  constructor(
+    @Inject(forwardRef(() => AccountService))
+    private readonly accountService: AccountService,
+  ) {}
+
+  // Lista todos os clientes
   public getAllCustomers(): Customer[] {
     return this.customers;
   }
 
-  // Listar um único cliente
+  // Lista um único cliente
   public getCustomerById(id: string): Customer {
     const customer = this.customers.find((customer) => customer.getId() === id);
     if (!customer) {
       throw new Error('Cliente não encontrado!');
     }
+    console.log(
+      customer.getId(),
+      'cliente que vai pagar o boleto(customer service)',
+    );
     return customer;
   }
 
-  // Abrir uma conta
+  // Cria um novo cliente
   public openAccount(
     fullName: string,
     address: string,
@@ -72,28 +85,50 @@ export class CustomerService {
     accountId: string,
     amount: number,
     boletoNumber: string,
-  ): void {
+  ): { customer: CustomerDto; account: AccountDto } {
     const customer = this.customers.find(
       (customer) => customer.getId() === customerId,
     );
-    if (customer) {
-      const account = customer
-        .getAccounts()
-        .find((acc) => acc.getId() === accountId);
-      if (account) {
-        const payment = new BoletoPayment(
-          amount,
-          new Date(),
-          boletoNumber,
-          account,
-        );
-        payment.processPayment();
-      } else {
-        throw new Error('Conta não encontrada!');
-      }
-    } else {
+    if (!customer) {
       throw new Error('Cliente não encontrado!');
     }
+    console.log(
+      customer.getId(),
+      'cliente que vai pagar o boleto(customer service)',
+    );
+
+    const account = customer
+      .getAccounts()
+      .find((acc) => acc.getId() === accountId);
+    if (!account) {
+      throw new Error('Conta não encontrada!');
+    }
+    console.log('Conta encontrada:', account.getId());
+
+    if (account.getBalance() < amount) {
+      throw new Error('Saldo insuficiente!');
+    }
+
+    // Processa o pagamento
+    const payment = new BoletoPayment(
+      amount,
+      new Date(),
+      boletoNumber,
+      accountId,
+      this.accountService,
+    );
+    console.log(payment.amount, 'valor do boleto');
+    payment.processPayment(customerId, accountId);
+
+    // Atualiza o saldo do cliente
+    customer.updateBalance(accountId, -amount); // Subtrai o valor do boleto da conta
+    console.log(customer.getId(), 'atualiza o saldo do cliente');
+
+    const customerDto = new CustomerDto(customer);
+    const accountDto = new AccountDto(account);
+    console.log('accountDto:', accountDto);
+    console.log('customerDto:', customerDto);
+    return { customer: customerDto, account: accountDto };
   }
 
   // Pagar pix
@@ -106,19 +141,31 @@ export class CustomerService {
     const customer = this.customers.find(
       (customer) => customer.getId() === customerId,
     );
-    if (customer) {
-      const account = customer
-        .getAccounts()
-        .find((acc) => acc.getId() === accountId);
-      if (account) {
-        const payment = new PixPayment(amount, new Date(), pixKey, account);
-        payment.processPayment();
-      } else {
-        throw new Error('Conta não encontrada!');
-      }
-    } else {
+    if (!customer) {
       throw new Error('Cliente não encontrado!');
     }
+
+    const account = this.accountService.getAccountById(accountId);
+    if (!account) {
+      throw new Error('Conta não encontrada!');
+    }
+
+    if (account.getBalance() < amount) {
+      throw new Error('Saldo insuficiente!');
+    }
+
+    // Processa o pagamento
+    const payment = new PixPayment(
+      amount,
+      new Date(),
+      pixKey,
+      accountId,
+      this.accountService,
+    );
+    payment.processPayment();
+
+    // Atualiza o saldo do cliente
+    customer.updateBalance(accountId, -amount); // Subtrai o valor do boleto da conta
   }
 
   // Fechar uma conta
@@ -141,7 +188,7 @@ export class CustomerService {
     }
   }
 
-  //Deletar um cliente
+  //Deletar cliente
   public deleteClient(customerId: string): void {
     this.customers = this.customers.filter(
       (customer) => customer.getId() !== customerId,

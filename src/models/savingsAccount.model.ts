@@ -39,4 +39,9 @@ export class SavingsAccount extends Account {
       throw new Error('Saldo insuficiente para transferência!');
     }
   }
+
+  // atualizar saldo
+  updateBalance(amount: number): void {
+    this.balance += amount;
+  }
 }
