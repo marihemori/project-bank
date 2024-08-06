@@ -1,14 +1,14 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Customer } from '../models/customer.model';
 import { BoletoPayment } from 'src/models/boletoPayment.model';
-import { PixPayment } from 'src/models/pixPayment.model';
+// import { PixPayment } from 'src/models/pixPayment.model';
 import { CheckingAccount } from 'src/models/checkingAccount.model';
 import { SavingsAccount } from 'src/models/savingsAccount.model';
 import { Manager } from 'src/models/manager.model';
 import { AccountService } from './account.service';
 import { CustomerDto } from 'src/dtos/customer.dto';
-import { AccountDto } from 'src/dtos/account.dto';
-// import { Account } from 'src/models/account.model';
+import { PaymentDto } from 'src/dtos/payment.dto';
+import { PixPayment } from 'src/models/pixPayment.model';
 
 @Injectable()
 export class CustomerService {
@@ -30,10 +30,7 @@ export class CustomerService {
     if (!customer) {
       throw new Error('Cliente não encontrado!');
     }
-    console.log(
-      customer.getId(),
-      'cliente que vai pagar o boleto(customer service)',
-    );
+    // console.log(customer, 'cliente que vai pagar o boleto(customer service)');
     return customer;
   }
 
@@ -85,17 +82,14 @@ export class CustomerService {
     accountId: string,
     amount: number,
     boletoNumber: string,
-  ): { customer: CustomerDto; account: AccountDto } {
+  ): { customer: CustomerDto; payment: PaymentDto } {
     const customer = this.customers.find(
       (customer) => customer.getId() === customerId,
     );
     if (!customer) {
       throw new Error('Cliente não encontrado!');
     }
-    console.log(
-      customer.getId(),
-      'cliente que vai pagar o boleto(customer service)',
-    );
+    console.log('cliente que vai pagar o boleto:', customer.getId());
 
     const account = customer
       .getAccounts()
@@ -110,25 +104,16 @@ export class CustomerService {
     }
 
     // Processa o pagamento
-    const payment = new BoletoPayment(
-      amount,
-      new Date(),
-      boletoNumber,
-      accountId,
-      this.accountService,
-    );
+    const payment = new BoletoPayment(amount, new Date(), boletoNumber);
     console.log(payment.amount, 'valor do boleto');
-    payment.processPayment(customerId, accountId);
 
-    // Atualiza o saldo do cliente
-    customer.updateBalance(accountId, -amount); // Subtrai o valor do boleto da conta
+    account.updateBalance(-amount);
     console.log(customer.getId(), 'atualiza o saldo do cliente');
 
     const customerDto = new CustomerDto(customer);
-    const accountDto = new AccountDto(account);
-    console.log('accountDto:', accountDto);
+    const paymentDto = new PaymentDto(payment);
     console.log('customerDto:', customerDto);
-    return { customer: customerDto, account: accountDto };
+    return { customer: customerDto, payment: paymentDto };
   }
 
   // Pagar pix
@@ -137,35 +122,38 @@ export class CustomerService {
     accountId: string,
     amount: number,
     pixKey: string,
-  ): void {
+  ): { customer: CustomerDto; payment: PaymentDto } {
     const customer = this.customers.find(
       (customer) => customer.getId() === customerId,
     );
     if (!customer) {
       throw new Error('Cliente não encontrado!');
     }
+    console.log('cliente que vai pagar o pix:', customer.getId());
 
-    const account = this.accountService.getAccountById(accountId);
+    const account = customer
+      .getAccounts()
+      .find((acc) => acc.getId() === accountId);
     if (!account) {
       throw new Error('Conta não encontrada!');
     }
+    console.log('Conta encontrada:', account.getId());
 
     if (account.getBalance() < amount) {
       throw new Error('Saldo insuficiente!');
     }
 
     // Processa o pagamento
-    const payment = new PixPayment(
-      amount,
-      new Date(),
-      pixKey,
-      accountId,
-      this.accountService,
-    );
-    payment.processPayment();
+    const payment = new PixPayment(amount, new Date(), pixKey);
+    console.log(payment.amount, 'valor do pix');
 
-    // Atualiza o saldo do cliente
-    customer.updateBalance(accountId, -amount); // Subtrai o valor do boleto da conta
+    account.updateBalance(-amount);
+    console.log(customer.getId(), 'atualiza o saldo do cliente');
+
+    const customerDto = new CustomerDto(customer);
+    const paymentDto = new PaymentDto(payment);
+    console.log('customerDto:', customerDto);
+    return { customer: customerDto, payment: paymentDto };
   }
 
   // Fechar uma conta

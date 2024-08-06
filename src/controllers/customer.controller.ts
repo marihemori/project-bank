@@ -14,8 +14,7 @@ import { CheckingAccount } from 'src/models/checkingAccount.model';
 import { SavingsAccount } from 'src/models/savingsAccount.model';
 import { Manager } from 'src/models/manager.model';
 import { CustomerDto } from '../dtos/customer.dto';
-import { AccountDto } from 'src/dtos/account.dto';
-// import { AccountDto } from 'src/dtos/account.dto';
+import { PaymentDto } from 'src/dtos/payment.dto';
 
 export interface ApiResponse<data> {
   statusCode: number;
@@ -140,30 +139,27 @@ export class CustomerController {
       amount: number;
       boletoNumber: string;
     },
-  ): Promise<ApiResponse<{ customer: CustomerDto; account: AccountDto }>> {
+  ): Promise<
+    ApiResponse<{
+      customer: CustomerDto;
+      payment: PaymentDto;
+    }>
+  > {
     try {
-      const { customer, account } = await this.customerService.payBoleto(
+      const { customer, payment } = this.customerService.payBoleto(
         customerId,
         body.accountId,
         body.amount,
         body.boletoNumber,
       );
 
-      //criação dos dtos
-      // const customerDto = new CustomerDto(customer);
-      // const accountDto = new AccountDto(account);
-
       return {
         statusCode: HttpStatus.OK,
         message: 'Boleto pago com sucesso!',
         data: {
           customer,
-          account,
+          payment,
         },
-        // data: {
-        //   customer: customerDto,
-        //   account: accountDto,
-        // },
       };
     } catch (error) {
       return {
@@ -183,9 +179,14 @@ export class CustomerController {
       amount: number;
       pixKey: string;
     },
-  ): Promise<ApiResponse<CustomerDto>> {
+  ): Promise<
+    ApiResponse<{
+      customer: CustomerDto;
+      payment: PaymentDto;
+    }>
+  > {
     try {
-      this.customerService.payPix(
+      const { customer, payment } = this.customerService.payPix(
         customerId,
         body.accountId,
         body.amount,
@@ -194,6 +195,10 @@ export class CustomerController {
       return {
         statusCode: HttpStatus.OK,
         message: 'Pix pago com sucesso!',
+        data: {
+          customer,
+          payment,
+        },
       };
     } catch (error) {
       return {

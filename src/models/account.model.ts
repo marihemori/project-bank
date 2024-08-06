@@ -44,21 +44,21 @@ export abstract class Account {
     return this.balance + this.overdraft;
   }
 
-  public processPayment(value: number): void {
-    if (this.getAccountType() === 'Poupança') {
-      this.balance -= value;
-    }
-    if (this.getAccountType() === 'Corrente') {
-      const availableFunds = this.getAvailableFunds();
-      if (value <= availableFunds) {
-        this.balance -= value;
-      } else {
-        throw new Error('Saldo insuficiente!');
-      }
-    } else {
-      throw new Error('Saldo insuficiente!');
-    }
-  }
+  // public processPayment(value: number): void {
+  //   if (this.getAccountType() === 'Poupança') {
+  //     this.balance -= value;
+  //   }
+  //   if (this.getAccountType() === 'Corrente') {
+  //     const availableFunds = this.getAvailableFunds();
+  //     if (value <= availableFunds) {
+  //       this.balance -= value;
+  //     } else {
+  //       throw new Error('Saldo insuficiente!');
+  //     }
+  //   } else {
+  //     throw new Error('Saldo insuficiente!');
+  //   }
+  // }
 
   // depositar
   abstract deposit(amount: number): void;

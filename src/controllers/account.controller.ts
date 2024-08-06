@@ -109,7 +109,7 @@ export class AccountController {
   ): Promise<TransferResponse<TransferResponseData>> {
     try {
       const { toAccountId, amount, customerIdTo } = body;
-      const { fromAccount, toAccount } = await this.accountService.transfer(
+      const { fromAccount, toAccount } = this.accountService.transfer(
         fromAccountId,
         toAccountId,
         customerId,
@@ -118,7 +118,6 @@ export class AccountController {
       );
       console.log(fromAccount, toAccount);
       console.log(this.accountService);
-      // const accountDto = new AccountDto(transfer);
       const fromAccountDto = new AccountDto(fromAccount);
       const toAccountDto = new AccountDto(toAccount);
 
