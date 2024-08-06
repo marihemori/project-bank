@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Manager } from '../models/manager.model';
+import { Manager } from '../entities/manager.model';
 import { CustomerService } from './customer.service';
-import { Account } from 'src/models/account.model';
-import { CheckingAccount } from 'src/models/checkingAccount.model';
-import { SavingsAccount } from 'src/models/savingsAccount.model';
+import { Account } from '../entities/account.model';
+import { CheckingAccount } from '../entities/checkingAccount.model';
+import { SavingsAccount } from '../entities/savingsAccount.model';
 
 @Injectable()
 export class ManagerService {

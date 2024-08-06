@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 // import { Account } from '../models/account.model';
-import { AccountService } from '../services/account.service';
-import { AccountDto } from 'src/dtos/account.dto';
+import { AccountService } from '../../domain/services/account.service';
+import { AccountDto } from 'src/application/dtos/account.dto';
 
 export interface ApiResponse<data> {
   statusCode: number;

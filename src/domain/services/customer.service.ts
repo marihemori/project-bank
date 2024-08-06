@@ -1,13 +1,13 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Customer } from '../models/customer.model';
-import { BoletoPayment } from 'src/models/boletoPayment.model';
-import { CheckingAccount } from 'src/models/checkingAccount.model';
-import { SavingsAccount } from 'src/models/savingsAccount.model';
-import { Manager } from 'src/models/manager.model';
+import { Customer } from '../entities/customer.model';
+import { BoletoPayment } from '../entities/boletoPayment.model';
+import { CheckingAccount } from '../entities/checkingAccount.model';
+import { SavingsAccount } from '../entities/savingsAccount.model';
+import { Manager } from '../entities/manager.model';
 import { AccountService } from './account.service';
-import { CustomerDto } from 'src/dtos/customer.dto';
-import { PaymentDto } from 'src/dtos/payment.dto';
-import { PixPayment } from 'src/models/pixPayment.model';
+import { CustomerDto } from 'src/application/dtos/customer.dto';
+import { PaymentDto } from 'src/application/dtos/payment.dto';
+import { PixPayment } from '../entities/pixPayment.model';
 
 @Injectable()
 export class CustomerService {

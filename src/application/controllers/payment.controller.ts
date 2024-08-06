@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common';
-import { PaymentService } from '../services/payment.service';
-import { PixPayment } from '../models/pixPayment.model';
-import { BoletoPayment } from '../models/boletoPayment.model';
-import { Account } from 'src/models/account.model';
+import { PaymentService } from '../../domain/services/payment.service';
+import { PixPayment } from '../../domain/entities/PixPayment.model';
+import { BoletoPayment } from '../../domain/entities/boletoPayment.model';
+import { Account } from '../../domain/entities/account.model';
 
 @Controller('payments')
 export class PaymentController {
@@ -29,7 +29,7 @@ export class PaymentController {
     const payment = this.paymentService.processPixPayment(
       body.amount,
       body.pixKey,
-      body.account,
+      // body.account,
     );
     return {
       statusCode: HttpStatus.CREATED,
@@ -45,7 +45,7 @@ export class PaymentController {
     const payment = this.paymentService.processBoletoPayment(
       body.amount,
       body.boletoNumber,
-      body.account,
+      // body.account,
     );
     return {
       statusCode: HttpStatus.CREATED,

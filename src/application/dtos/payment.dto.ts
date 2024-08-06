@@ -1,4 +1,4 @@
-import { Payment } from 'src/models/payment.model';
+import { Payment } from '../../domain/entities/payment.model';
 
 export class PaymentDto {
   id: string;
