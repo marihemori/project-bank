@@ -39,12 +39,16 @@ export class ManagerController {
     }
   }
 
+  // Lista um único gerente
   @Get('/:id')
   async getManagerById(
     @Param('id') managerId: string,
   ): Promise<ApiResponse<ManagerDto>> {
     try {
       const manager = this.managerService.getManagerById(managerId);
+      if (!manager) {
+        throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
+      }
       const managerDto = new ManagerDto(manager);
       return {
         statusCode: HttpStatus.OK,

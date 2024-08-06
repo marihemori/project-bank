@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Customer } from '../models/customer.model';
 import { BoletoPayment } from 'src/models/boletoPayment.model';
-// import { PixPayment } from 'src/models/pixPayment.model';
 import { CheckingAccount } from 'src/models/checkingAccount.model';
 import { SavingsAccount } from 'src/models/savingsAccount.model';
 import { Manager } from 'src/models/manager.model';

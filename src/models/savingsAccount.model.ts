@@ -1,11 +1,12 @@
 import { Account } from './account.model';
+import { AccountType } from '../enums/accountType.enum';
 
 // Conta poupança
 export class SavingsAccount extends Account {
   private interestRate: number; // taxa de juros
 
   constructor(balance: number, overdraft: number, interestRate: number) {
-    super(balance, overdraft, 'Poupança');
+    super(balance, overdraft, AccountType.POUPANCA);
     this.interestRate = interestRate;
   }
 

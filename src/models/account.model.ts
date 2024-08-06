@@ -1,16 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
+import { AccountType } from '../enums/accountType.enum';
 
 export abstract class Account {
   protected id: string; // id da conta
   protected balance: number; // saldo
   protected overdraft: number; // cheque especial
-  protected accountType: 'Corrente' | 'Poupança'; // tipo de conta
+  protected accountType: AccountType; // tipo de conta
 
-  constructor(
-    balance: number,
-    overdraft: number,
-    accountType: 'Corrente' | 'Poupança',
-  ) {
+  constructor(balance: number, overdraft: number, accountType: AccountType) {
     this.id = uuidv4();
     this.balance = balance;
     this.overdraft = overdraft;
@@ -43,22 +40,6 @@ export abstract class Account {
   public getAvailableFunds(): number {
     return this.balance + this.overdraft;
   }
-
-  // public processPayment(value: number): void {
-  //   if (this.getAccountType() === 'Poupança') {
-  //     this.balance -= value;
-  //   }
-  //   if (this.getAccountType() === 'Corrente') {
-  //     const availableFunds = this.getAvailableFunds();
-  //     if (value <= availableFunds) {
-  //       this.balance -= value;
-  //     } else {
-  //       throw new Error('Saldo insuficiente!');
-  //     }
-  //   } else {
-  //     throw new Error('Saldo insuficiente!');
-  //   }
-  // }
 
   // depositar
   abstract deposit(amount: number): void;

@@ -13,6 +13,7 @@ export class ManagerService {
 
   // Listar gerentes
   public getAllManagers(): Manager[] {
+    console.log(this.managers, 'gerentes');
     return this.managers;
   }
 

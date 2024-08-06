@@ -20,6 +20,10 @@ export class Manager {
     return this.fullName;
   }
 
+  getCustomers(): Customer[] {
+    return this.customers;
+  }
+
   public addCustomer(customer: Customer): void {
     this.customers.push(customer);
     console.log('Cliente adicionado');

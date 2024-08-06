@@ -1,9 +1,10 @@
 import { Account } from './account.model';
+import { AccountType } from '../enums/accountType.enum';
 
 // Conta corrente
 export class CheckingAccount extends Account {
   constructor(balance: number, overdraft: number) {
-    super(balance, overdraft, 'Corrente');
+    super(balance, overdraft, AccountType.CORRENTE);
   }
 
   // depositar
