@@ -1,4 +1,4 @@
-import { Account } from 'src/models/account.model';
+import { Account } from '../../domain/entities/account.model';
 
 export class AccountDto {
   id: string;

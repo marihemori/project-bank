@@ -9,10 +9,10 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ManagerService } from '../services/manager.service';
-import { CheckingAccount } from 'src/models/checkingAccount.model';
-import { SavingsAccount } from 'src/models/savingsAccount.model';
-import { ManagerDto } from 'src/dtos/manager.dto';
+import { ManagerService } from '../../domain/services/manager.service';
+import { CheckingAccount } from '../../domain/entities/checkingAccount.model';
+import { SavingsAccount } from '../../domain/entities/savingsAccount.model';
+import { ManagerDto } from 'src/application/dtos/manager.dto';
 
 export interface ApiResponse<data> {
   statusCode: number;

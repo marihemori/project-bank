@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PixPayment } from '../models/pixPayment.model';
-import { BoletoPayment } from '../models/boletoPayment.model';
-import { Payment } from '../models/payment.model';
-import { AccountService } from './account.service';
+import { PixPayment } from '../entities/pixPayment.model';
+import { BoletoPayment } from '../entities/boletoPayment.model';
+import { Payment } from '../entities/payment.model';
+// import { AccountService } from './account.service';
 
 @Injectable()
 export class PaymentService {
@@ -15,18 +15,12 @@ export class PaymentService {
   processPixPayment(
     amount: number,
     pixKey: string,
-    accountId: string,
-    accountService: AccountService,
+    // accountId: string,
+    // accountService: AccountService,
   ): PixPayment {
-    const payment = new PixPayment(
-      amount,
-      new Date(),
-      pixKey,
-      accountId,
-      accountService,
-    );
+    const payment = new PixPayment(amount, new Date(), pixKey);
     try {
-      payment.processPayment();
+      // payment.processPayment();
       this.payments.push(payment);
       return payment;
     } catch (error) {
@@ -37,18 +31,18 @@ export class PaymentService {
   processBoletoPayment(
     amount: number,
     boletoNumber: string,
-    accountId: string,
-    accountService: AccountService,
+    // accountId: string,
+    // accountService: AccountService,
   ): BoletoPayment {
     const payment = new BoletoPayment(
       amount,
       new Date(),
       boletoNumber,
-      accountId,
-      accountService,
+      // accountId,
+      // accountService,
     );
     try {
-      payment.processPayment();
+      // payment.processPayment();
       this.payments.push(payment);
       return payment;
     } catch (error) {

@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { AccountService } from '../services/account.service';
-import { AccountController } from '../controllers/account.controller';
+import { AccountService } from '../domain/services/account.service';
+import { AccountController } from '../application/controllers/account.controller';
 import { CustomerModule } from './customer.module';
 
 @Module({

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Customer } from 'src/models/customer.model';
+import { Customer } from './customer.model';
 
 export class Manager {
   private id: string;
