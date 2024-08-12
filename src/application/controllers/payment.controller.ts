@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common';
 import { PaymentService } from '../../domain/services/payment.service';
-import { PixPayment } from '../../domain/entities/PixPayment.model';
-import { BoletoPayment } from '../../domain/entities/boletoPayment.model';
-import { Account } from '../../domain/entities/account.model';
+import { PixPayment } from '../../domain/entity/PixPayment.model';
+import { BoletoPayment } from '../../domain/entity/boletoPayment.model';
+import { Account } from '../../domain/entity/account.model';
 
 @Controller('payments')
 export class PaymentController {

@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Account } from '../entities/account.model';
-import { Customer } from '../entities/customer.model';
+import { Account } from '../entity/account.model';
+import { Customer } from '../entity/customer.model';
 import { CustomerService } from './customer.service';
 
 @Injectable()

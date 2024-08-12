@@ -10,8 +10,8 @@ import {
   Post,
 } from '@nestjs/common';
 import { ManagerService } from '../../domain/services/manager.service';
-import { CheckingAccount } from '../../domain/entities/checkingAccount.model';
-import { SavingsAccount } from '../../domain/entities/savingsAccount.model';
+import { CheckingAccount } from '../../domain/entity/checkingAccount.model';
+import { SavingsAccount } from '../../domain/entity/savingsAccount.model';
 import { ManagerDto } from 'src/application/dtos/manager.dto';
 
 export interface ApiResponse<data> {

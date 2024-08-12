@@ -1,6 +1,6 @@
-import { CheckingAccount } from '../../domain/entities/checkingAccount.model';
-import { Manager } from '../../domain/entities/manager.model';
-import { SavingsAccount } from '../../domain/entities/savingsAccount.model';
+import { CheckingAccount } from '../../domain/entity/checkingAccount.model';
+import { Manager } from '../../domain/entity/manager.model';
+import { SavingsAccount } from '../../domain/entity/savingsAccount.model';
 
 export class CustomerDto {
   id: string;

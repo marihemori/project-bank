@@ -1,22 +1,25 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Customer } from '../entities/customer.model';
-import { BoletoPayment } from '../entities/boletoPayment.model';
-import { CheckingAccount } from '../entities/checkingAccount.model';
-import { SavingsAccount } from '../entities/savingsAccount.model';
-import { Manager } from '../entities/manager.model';
+import { Customer } from '../entity/customer.model';
+import { BoletoPayment } from '../entity/boletoPayment.model';
+import { CheckingAccount } from '../entity/checkingAccount.model';
+import { SavingsAccount } from '../entity/savingsAccount.model';
+import { Manager } from '../entity/manager.model';
 import { AccountService } from './account.service';
 import { CustomerDto } from 'src/application/dtos/customer.dto';
 import { PaymentDto } from 'src/application/dtos/payment.dto';
-import { PixPayment } from '../entities/pixPayment.model';
+import { PixPayment } from '../entity/pixPayment.model';
+import { CustomerRepository } from 'src/infrastructure/repositories/customer.repository';
 
 @Injectable()
 export class CustomerService {
   private customers: Customer[] = [];
 
-  constructor(
-    @Inject(forwardRef(() => AccountService))
-    private readonly accountService: AccountService,
-  ) {}
+  // constructor(
+  //   @Inject(forwardRef(() => AccountService))
+  //   private readonly accountService: AccountService,
+  // ) {}
+
+  constructor(private readonly customerRepository: CustomerRepository) {}
 
   // Lista todos os clientes
   public getAllCustomers(): Customer[] {
