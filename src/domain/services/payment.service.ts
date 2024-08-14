@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PixPayment } from '../entity/pixPayment.model';
-import { BoletoPayment } from '../entity/boletoPayment.model';
-import { Payment } from '../entity/payment.model';
+import { PixPayment } from '../models/pixPayment.model';
+import { BoletoPayment } from '../models/boletoPayment.model';
+import { Payment } from '../models/payment.model';
 // import { AccountService } from './account.service';
 
 @Injectable()

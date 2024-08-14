@@ -10,9 +10,9 @@ import {
   Post,
 } from '@nestjs/common';
 import { CustomerService } from '../../domain/services/customer.service';
-import { CheckingAccount } from '../../domain/entity/checkingAccount.model';
-import { SavingsAccount } from '../../domain/entity/savingsAccount.model';
-import { Manager } from '../../domain/entity/manager.model';
+import { CheckingAccount } from '../../domain/models/checkingAccount.model';
+import { SavingsAccount } from '../../domain/models/savingsAccount.model';
+import { Manager } from '../../domain/models/manager.model';
 import { CustomerDto } from '../dtos/customer.dto';
 import { PaymentDto } from 'src/application/dtos/payment.dto';
 

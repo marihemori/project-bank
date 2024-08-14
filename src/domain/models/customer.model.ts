@@ -6,7 +6,7 @@ import { SavingsAccount } from './savingsAccount.model';
 
 export class Customer {
   private id: string;
-  private fullName: string;
+  private fullname: string;
   private address: string;
   private phone: string;
   private income: number; // renda salarial
@@ -14,14 +14,14 @@ export class Customer {
   private manager?: Manager;
 
   constructor(
-    fullName: string,
+    fullname: string,
     address: string,
     phone: string,
     income: number,
     manager?: Manager,
   ) {
     this.id = uuidv4();
-    this.fullName = fullName;
+    this.fullname = fullname;
     this.address = address;
     this.phone = phone;
     this.income = income;
@@ -32,8 +32,8 @@ export class Customer {
     return this.id;
   }
 
-  public getFullName(): string {
-    return this.fullName;
+  public getFullname(): string {
+    return this.fullname;
   }
 
   public getAddress(): string {

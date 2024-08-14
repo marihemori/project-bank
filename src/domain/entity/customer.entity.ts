@@ -8,7 +8,7 @@ export class Customer {
   protected id: string; // id da conta
 
   @Column({ type: 'text' })
-  protected fullName: string; // nome completo
+  protected fullname: string; // nome completo
 
   @Column({ type: 'text' })
   protected address: string; // endereço
@@ -23,14 +23,14 @@ export class Customer {
   protected manager?: Manager; // gerente
 
   constructor(
-    fullName: string,
+    fullname: string,
     address: string,
     phone: string,
     income: number,
     manager?: Manager,
   ) {
     this.id = uuidv4();
-    this.fullName = fullName;
+    this.fullname = fullname;
     this.address = address;
     this.phone = phone;
     this.income = income;

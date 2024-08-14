@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Manager } from '../entity/manager.model';
+import { Manager } from '../models/manager.model';
 import { CustomerService } from './customer.service';
-import { Account } from '../entity/account.model';
-import { CheckingAccount } from '../entity/checkingAccount.model';
-import { SavingsAccount } from '../entity/savingsAccount.model';
+import { Account } from '../models/account.model';
+import { CheckingAccount } from '../models/checkingAccount.model';
+import { SavingsAccount } from '../models/savingsAccount.model';
+import { Customer } from '../models/customer.model';
 
 @Injectable()
 export class ManagerService {
   private managers: Manager[] = [];
+  private customers: Customer[] = [];
 
   constructor(private readonly customerService: CustomerService) {}
 
@@ -40,6 +42,42 @@ export class ManagerService {
     return this.managers.find((manager) => manager.getId() === id);
   }
 
+  // Gerente abre uma conta para o cliente
+  public openAccount(
+    fullname: string,
+    address: string,
+    phone: string,
+    income: number,
+    accountType: typeof CheckingAccount | typeof SavingsAccount,
+    managerId: string,
+  ): Customer {
+    // Encontrar um gerente
+    const manager = this.findManager(managerId);
+    if (!manager) {
+      throw new Error('Gerente não encontrado!');
+    }
+
+    // Verificar se a renda é suficiente para abrir uma conta corrente
+    if (accountType === CheckingAccount && income < 500) {
+      throw new Error(
+        'A renda deve ser de pelo menos R$ 500,00 para abrir uma conta corrente.',
+      );
+    }
+
+    // cria um novo cliente
+    const customer = new Customer(fullname, address, phone, income, manager);
+
+    // Adiciona o cliente à lista de clientes usando o serviço
+    this.customerService.addCustomer(customer);
+
+    // adiciona o cliente a lista de clientes do gerente
+    manager.addCustomer(customer);
+
+    customer.openAccount(accountType);
+
+    return customer;
+  }
+
   // Adicionar cliente ao gerente
   public addCustomer(managerId: string, customerId: string): Manager {
     const manager = this.findManager(managerId);
@@ -67,31 +105,6 @@ export class ManagerService {
       );
     }
     return manager;
-  }
-
-  public openAccount(
-    managerId: string,
-    clientId: string,
-    accountType: typeof CheckingAccount | typeof SavingsAccount,
-  ): Account {
-    const manager = this.findManager(managerId);
-    if (manager) {
-      const client = manager.customers.find(
-        (client) => client.getId() === clientId,
-      );
-      if (client) {
-        if (accountType === CheckingAccount && client.getIncome() < 500) {
-          throw new Error(
-            'A renda deve ser de pelo menos R$ 500,00 para abrir uma conta corrente.',
-          );
-        }
-        return client.openAccount(accountType);
-      } else {
-        throw new Error('Cliente não encontrado!');
-      }
-    } else {
-      throw new Error('Gerente não encontrado!');
-    }
   }
 
   // fechar conta
@@ -124,20 +137,20 @@ export class ManagerService {
   // muda tipo da conta
   public changeAccountType(
     managerId: string,
-    clientId: string,
+    customerId: string,
     accountId: string,
     newType: typeof CheckingAccount | typeof SavingsAccount,
   ): Manager {
     const manager = this.findManager(managerId);
     if (manager) {
-      const client = manager.customers.find((c) => c.getId() === clientId);
-      if (client) {
-        const accountIndex = client
+      const customer = manager.customers.find((c) => c.getId() === customerId);
+      if (customer) {
+        const accountIndex = customer
           .getAccounts()
           .findIndex((acc) => acc.getId() === accountId);
         if (accountIndex !== -1) {
           let newAccount: Account;
-          const oldAccount = client.getAccounts()[accountIndex];
+          const oldAccount = customer.getAccounts()[accountIndex];
           if (newType === CheckingAccount) {
             newAccount = new CheckingAccount(oldAccount.getBalance(), 500);
           } else {
@@ -147,7 +160,7 @@ export class ManagerService {
               0.01,
             );
           }
-          client.getAccounts()[accountIndex] = newAccount;
+          customer.getAccounts()[accountIndex] = newAccount;
         }
       }
     }

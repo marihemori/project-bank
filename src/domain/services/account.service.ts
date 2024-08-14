@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Account } from '../entity/account.model';
-import { Customer } from '../entity/customer.model';
+import { Account } from '../models/account.model';
+import { Customer } from '../models/customer.model';
 import { CustomerService } from './customer.service';
 
 @Injectable()
@@ -108,6 +108,7 @@ export class AccountService {
     if (!customerFrom) {
       throw new Error('Cliente de origem não encontrado!');
     }
+    console.log('cliente que vai transferir:', customerFrom.getId());
 
     // obter o cliente de destino
     const customerTo = this.customerService.getCustomerById(customerIdTo);

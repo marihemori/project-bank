@@ -10,9 +10,12 @@ import {
   Post,
 } from '@nestjs/common';
 import { ManagerService } from '../../domain/services/manager.service';
-import { CheckingAccount } from '../../domain/entity/checkingAccount.model';
-import { SavingsAccount } from '../../domain/entity/savingsAccount.model';
+import { CheckingAccount } from '../../domain/models/checkingAccount.model';
+import { SavingsAccount } from '../../domain/models/savingsAccount.model';
 import { ManagerDto } from 'src/application/dtos/manager.dto';
+import { OpenAccountDto } from '../dtos/openAccount.dto';
+// import { AccountDto } from '../dtos/account.dto';
+import { CustomerDto } from '../dtos/customer.dto';
 
 export interface ApiResponse<data> {
   statusCode: number;
@@ -45,11 +48,15 @@ export class ManagerController {
     @Param('id') managerId: string,
   ): Promise<ApiResponse<ManagerDto>> {
     try {
+      // Obtém o gerente como um objeto Manager
       const manager = this.managerService.getManagerById(managerId);
       if (!manager) {
-        throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
+        throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
       }
+
+      // Cria o DTO a partir do objeto Manager
       const managerDto = new ManagerDto(manager);
+
       return {
         statusCode: HttpStatus.OK,
         message: 'Gerente carregado com sucesso!',
@@ -64,8 +71,8 @@ export class ManagerController {
   }
 
   @Post('/create')
-  createManager(@Body() body: { fullName: string }) {
-    const manager = this.managerService.createManager(body.fullName);
+  createManager(@Body() body: { fullname: string }) {
+    const manager = this.managerService.createManager(body.fullname);
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Gerente criado com sucesso!',
@@ -73,25 +80,37 @@ export class ManagerController {
     };
   }
 
-  @Post(':id/add-customer')
-  addCustomer(
-    @Param('id') managerId: string,
+  // Gerente abre uma conta para o cliente
+  @Post(':id/open-account')
+  openAccount(
+    @Param('id') id: string,
     @Body()
-    body: {
-      customerId: string;
-    },
-  ) {
+    body: OpenAccountDto,
+  ): ApiResponse<CustomerDto> {
     try {
-      const manager = this.managerService.addCustomer(
-        managerId,
-        body.customerId,
+      const manager = this.managerService.getManagerById(id);
+      if (!manager) {
+        throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
+      }
+
+      const accountClass =
+        body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
+
+      const customer = this.managerService.openAccount(
+        body.fullname,
+        body.address,
+        body.phone,
+        body.income,
+        accountClass,
+        body.managerId,
       );
+
+      const customerDto = new CustomerDto(customer);
+
       return {
-        statusCode: HttpStatus.OK,
-        message: 'Cliente adicionado ao gerente com sucesso!',
-        data: {
-          manager,
-        },
+        statusCode: HttpStatus.CREATED,
+        message: 'Conta aberta com sucesso!',
+        data: customerDto,
       };
     } catch (error) {
       return {
@@ -101,6 +120,32 @@ export class ManagerController {
     }
   }
 
+  // Adiciona um cliente a um gerente
+  @Post(':id/add-customer')
+  async addCustomer(
+    @Param('id') managerId: string,
+    @Body() body: { customerId: string },
+  ): Promise<ApiResponse<ManagerDto>> {
+    try {
+      const manager = this.managerService.addCustomer(
+        managerId,
+        body.customerId,
+      );
+      const managerDto = new ManagerDto(manager);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Cliente adicionado ao gerente com sucesso!',
+        data: managerDto,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: error.message,
+      };
+    }
+  }
+
+  // Remove um cliente de um gerente
   @Delete(':id/remove-customer')
   removeCustomer(
     @Param('id') id: string,
@@ -111,29 +156,6 @@ export class ManagerController {
       statusCode: HttpStatus.OK,
       message: 'Cliente removido com sucesso',
       data: manager,
-    };
-  }
-
-  @Post(':id/open-account')
-  openAccount(
-    @Param('id') id: string,
-    @Body()
-    body: {
-      customerId: string;
-      accountType: 'Corrente' | 'Poupança';
-    },
-  ) {
-    const accountClass =
-      body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
-    const account = this.managerService.openAccount(
-      id,
-      body.customerId,
-      accountClass,
-    );
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Conta aberta com sucesso!',
-      data: account,
     };
   }
 

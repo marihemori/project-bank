@@ -3,12 +3,12 @@ import { Customer } from './customer.model';
 
 export class Manager {
   private id: string;
-  private fullName: string;
+  private fullname: string;
   public customers: Customer[] = [];
 
   constructor(fullname: string) {
     this.id = uuidv4();
-    this.fullName = fullname;
+    this.fullname = fullname;
     this.customers = [];
   }
 
@@ -16,8 +16,8 @@ export class Manager {
     return this.id;
   }
 
-  getFullName(): string {
-    return this.fullName;
+  getFullname(): string {
+    return this.fullname;
   }
 
   getCustomers(): Customer[] {

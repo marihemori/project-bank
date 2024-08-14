@@ -1,25 +1,30 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Customer } from '../entity/customer.model';
-import { BoletoPayment } from '../entity/boletoPayment.model';
-import { CheckingAccount } from '../entity/checkingAccount.model';
-import { SavingsAccount } from '../entity/savingsAccount.model';
-import { Manager } from '../entity/manager.model';
-import { AccountService } from './account.service';
+import { Customer } from '../models/customer.model';
+import { BoletoPayment } from '../models/boletoPayment.model';
+import { CheckingAccount } from '../models/checkingAccount.model';
+import { SavingsAccount } from '../models/savingsAccount.model';
+import { Manager } from '../models/manager.model';
 import { CustomerDto } from 'src/application/dtos/customer.dto';
 import { PaymentDto } from 'src/application/dtos/payment.dto';
-import { PixPayment } from '../entity/pixPayment.model';
-import { CustomerRepository } from 'src/infrastructure/repositories/customer.repository';
+import { PixPayment } from '../models/pixPayment.model';
+import { AccountService } from './account.service';
+// import { CustomerRepository } from 'src/infrastructure/repositories/customer.repository';
 
 @Injectable()
 export class CustomerService {
   private customers: Customer[] = [];
 
-  // constructor(
-  //   @Inject(forwardRef(() => AccountService))
-  //   private readonly accountService: AccountService,
-  // ) {}
+  constructor(
+    @Inject(forwardRef(() => AccountService))
+    private readonly accountService: AccountService,
+  ) {}
 
-  constructor(private readonly customerRepository: CustomerRepository) {}
+  // constructor(private readonly customerRepository: CustomerRepository) {}
+
+  // Adiciona um novo cliente à lista de clientes atraves do gerente
+  public addCustomer(customer: Customer): void {
+    this.customers.push(customer);
+  }
 
   // Lista todos os clientes
   public getAllCustomers(): Customer[] {
@@ -32,20 +37,19 @@ export class CustomerService {
     if (!customer) {
       throw new Error('Cliente não encontrado!');
     }
-    // console.log(customer, 'cliente que vai pagar o boleto(customer service)');
     return customer;
   }
 
   // Cria um novo cliente
   public openAccount(
-    fullName: string,
+    fullname: string,
     address: string,
     phone: string,
     income: number,
     accountType: typeof CheckingAccount | typeof SavingsAccount,
     manager: Manager,
   ): Customer {
-    const customer = new Customer(fullName, address, phone, income, manager);
+    const customer = new Customer(fullname, address, phone, income, manager);
     customer.openAccount(accountType);
     this.customers.push(customer);
     return customer;

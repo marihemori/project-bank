@@ -1,23 +1,23 @@
-import { CheckingAccount } from '../../domain/entity/checkingAccount.model';
-import { Manager } from '../../domain/entity/manager.model';
-import { SavingsAccount } from '../../domain/entity/savingsAccount.model';
+import { Customer } from 'src/domain/models/customer.model';
+import { CheckingAccount } from '../../domain/models/checkingAccount.model';
+import { SavingsAccount } from '../../domain/models/savingsAccount.model';
 
 export class CustomerDto {
   id: string;
-  fullName: string;
+  fullname: string;
   address: string;
   phone: string;
   income: number;
   accounts: (CheckingAccount | SavingsAccount)[] = [];
-  manager?: Manager;
+  managerId?: string;
 
-  constructor(customer) {
+  constructor(customer: Customer) {
     this.id = customer.getId();
-    this.fullName = customer.getFullName();
+    this.fullname = customer.getFullname();
     this.address = customer.getAddress();
     this.phone = customer.getPhone();
     this.income = customer.getIncome();
     this.accounts = customer.getAccounts();
-    this.manager = customer.getManager();
+    this.managerId = customer.getManager()?.getId();
   }
 }
