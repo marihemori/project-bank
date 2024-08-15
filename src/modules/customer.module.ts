@@ -3,13 +3,12 @@ import { CustomerController } from '../application/controllers/customer.controll
 import { CustomerService } from '../domain/services/customer.service';
 import { AccountModule } from './account.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { Customer } from 'src/domain/entity/customer.entity';
+import { CustomerEntity } from 'src/domain/entity/customer.entity';
 import { CustomerRepository } from 'src/infrastructure/repositories/customer.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Customer]),
+    TypeOrmModule.forFeature([CustomerEntity]),
     forwardRef(() => AccountModule),
   ],
   controllers: [CustomerController],

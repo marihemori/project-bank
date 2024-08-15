@@ -2,6 +2,14 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Account } from '../models/account.model';
 import { Customer } from '../models/customer.model';
 import { CustomerService } from './customer.service';
+import { AccountRepository } from 'src/infrastructure/repositories/account.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import {
+  TransactionEntity,
+  TransactionType,
+} from '../entity/transaction.entity';
+import { Repository } from 'typeorm';
+import { AccountEntity } from '../entity/account/account.entity';
 
 @Injectable()
 export class AccountService {
@@ -11,16 +19,31 @@ export class AccountService {
   constructor(
     @Inject(forwardRef(() => CustomerService))
     private readonly customerService: CustomerService,
+
+    // injeção de dependência da conta
+    @InjectRepository(AccountEntity)
+    private readonly accountRepository: Repository<AccountEntity>,
+
+    // injeção de dependência da transferência
+    @InjectRepository(TransactionEntity)
+    private readonly transactionRepository: Repository<TransactionEntity>,
   ) {}
 
+  // Obter historico de transferências
+  public async getTransactionHistory(
+    accountId: string,
+  ): Promise<TransactionEntity[]> {
+    return this.transactionRepository.find({
+      where: { account: { id: accountId } },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   // Encontrar conta pelo id
-  public getAccountById(accountId: string): Account {
-    // console.log(`Conta encontrada: ${accountId}`);
-    // return this.accounts.find((account) => account.getId() === accountId);
+  public async getAccountById(accountId: string): Promise<Account> {
     const account = this.accounts.find(
       (account) => account.getId() === accountId,
     );
-    // console.log(this.accounts);
     if (!account) {
       throw new Error('Conta não encontrada!');
     }
@@ -28,31 +51,35 @@ export class AccountService {
   }
 
   // Verificar saldo
-  public verifyBalance(customerId: string, accountId: string): any {
+  public async verifyBalance(
+    customerId: string,
+    accountId: string,
+  ): Promise<any> {
     const customer = this.customerService.getCustomerById(customerId);
     if (!customer) {
       throw new Error('Cliente não encontrado!');
     }
-
     const account = customer
       .getAccounts()
       .find((acc) => acc.getId() === accountId);
-    // console.log(account);
 
     if (!account) {
       throw new Error('Conta não encontrada!');
     }
-    // console.log(`Saldo da conta ${accountId}: ${account.getBalance()}`);
     return account; // Retorna o objeto Account
   }
 
   // Adicionar conta
-  public addAccount(account: Account): void {
+  public async addAccount(account: Account): Promise<void> {
     this.accounts.push(account);
   }
 
-  // depositar
-  public deposit(accountId: string, customerId: string, amount: number): void {
+  // Depositar
+  public async deposit(
+    accountId: string,
+    customerId: string,
+    amount: number,
+  ): Promise<void> {
     const customer = this.customerService.getCustomerById(customerId);
     if (!customer) {
       throw new Error('Cliente não encontrado!');
@@ -61,19 +88,27 @@ export class AccountService {
     const account = customer
       .getAccounts()
       .find((acc) => acc.getId() === accountId);
-    // console.log(account);
 
     if (!account) {
       throw new Error('Conta não encontrada!');
     }
 
-    // console.log(`Depositando ${amount} na conta ${accountId}`);
     account.deposit(amount);
-    // console.log(`Novo saldo: ${account.getBalance()}`);
+
+    // Registro da transação
+    const transaction = new TransactionEntity();
+    transaction.type = TransactionType.DEPOSIT;
+    transaction.amount = amount;
+    transaction.account = account;
+    await this.transactionRepository.save(transaction);
   }
 
-  // sacar
-  public withdraw(accountId: string, customerId: string, amount: number): void {
+  // Sacar
+  public async withdraw(
+    accountId: string,
+    customerId: string,
+    amount: number,
+  ): Promise<void> {
     const customer = this.customerService.getCustomerById(customerId);
     if (!customer) {
       throw new Error('Cliente não encontrado!');
@@ -93,16 +128,23 @@ export class AccountService {
     } else {
       account.setBalance(newBalance);
     }
+
+    // Registro da transação
+    const transaction = new TransactionEntity();
+    transaction.type = TransactionType.WITHDRAW;
+    transaction.amount = amount;
+    transaction.account = account;
+    await this.transactionRepository.save(transaction);
   }
 
   // transferir
-  public transfer(
+  public async transfer(
     fromAccountId: string, // id da conta de origem
     toAccountId: string, // id da conta de destino
     customerIdFrom: string, // id do cliente de origem
     customerIdTo: string, // id do cliente de destino
     amount: number, // valor da transferência
-  ): { fromAccount: Account; toAccount: Account } {
+  ): Promise<{ fromAccount: Account; toAccount: Account }> {
     // obter o cliente de origem
     const customerFrom = this.customerService.getCustomerById(customerIdFrom);
     if (!customerFrom) {
@@ -135,12 +177,23 @@ export class AccountService {
     // verificar o saldo e realizar a transferência
     if (fromAccount.getBalance() >= amount) {
       const newFromBalance = fromAccount.getBalance() - amount;
-      // console.log(`Novo saldo: ${newFromBalance}`);
       const newToBalance = toAccount.getBalance() + amount;
       fromAccount.setBalance(newFromBalance);
-      // console.log(`Novo saldo conta origem: ${fromAccount.getBalance()}`);
       toAccount.setBalance(newToBalance);
-      // console.log(`Novo saldo conta destino: ${toAccount.getBalance()}`);
+
+      // Registro para a conta de origem
+      const fromTransaction = new TransactionEntity();
+      fromTransaction.type = TransactionType.TRANSFER;
+      fromTransaction.amount = -amount;
+      fromTransaction.account = fromAccount;
+      await this.transactionRepository.save(fromTransaction);
+
+      // Registro para a conta de destino
+      const toTransaction = new TransactionEntity();
+      toTransaction.type = TransactionType.TRANSFER;
+      toTransaction.amount = amount;
+      toTransaction.account = toAccount;
+      await this.transactionRepository.save(toTransaction);
     } else {
       throw new Error('Saldo insuficiente para transferência!');
     }

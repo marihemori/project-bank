@@ -31,7 +31,10 @@ export class AccountController {
     @Param('accountId') accountId: string,
   ): Promise<ApiResponse<AccountDto>> {
     try {
-      const balance = this.accountService.verifyBalance(customerId, accountId);
+      const balance = await this.accountService.verifyBalance(
+        customerId,
+        accountId,
+      );
       const accountDto = new AccountDto(balance); // converte para AccountDto
       return {
         statusCode: HttpStatus.OK,
@@ -55,7 +58,7 @@ export class AccountController {
   ): Promise<ApiResponse<AccountDto>> {
     try {
       this.accountService.deposit(accountId, customerId, body.amount);
-      const newBalance = this.accountService.verifyBalance(
+      const newBalance = await this.accountService.verifyBalance(
         customerId,
         accountId,
       );
@@ -82,7 +85,7 @@ export class AccountController {
   ): Promise<ApiResponse<AccountDto>> {
     try {
       this.accountService.withdraw(accountId, customerId, body.amount);
-      const newBalance = this.accountService.verifyBalance(
+      const newBalance = await this.accountService.verifyBalance(
         customerId,
         accountId,
       );
@@ -109,7 +112,7 @@ export class AccountController {
   ): Promise<TransferResponse<TransferResponseData>> {
     try {
       const { toAccountId, amount, customerIdTo } = body;
-      const { fromAccount, toAccount } = this.accountService.transfer(
+      const { fromAccount, toAccount } = await this.accountService.transfer(
         fromAccountId,
         toAccountId,
         customerId,

@@ -9,7 +9,6 @@ import { Customer } from '../models/customer.model';
 @Injectable()
 export class ManagerService {
   private managers: Manager[] = [];
-  private customers: Customer[] = [];
 
   constructor(private readonly customerService: CustomerService) {}
 

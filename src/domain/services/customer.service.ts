@@ -8,7 +8,8 @@ import { CustomerDto } from 'src/application/dtos/customer.dto';
 import { PaymentDto } from 'src/application/dtos/payment.dto';
 import { PixPayment } from '../models/pixPayment.model';
 import { AccountService } from './account.service';
-// import { CustomerRepository } from 'src/infrastructure/repositories/customer.repository';
+import { CustomerRepository } from 'src/infrastructure/repositories/customer.repository';
+import { CustomerEntity } from '../entity/customer.entity';
 
 @Injectable()
 export class CustomerService {
@@ -17,18 +18,19 @@ export class CustomerService {
   constructor(
     @Inject(forwardRef(() => AccountService))
     private readonly accountService: AccountService,
+    private readonly customerRepository: CustomerRepository,
   ) {}
 
   // constructor(private readonly customerRepository: CustomerRepository) {}
 
   // Adiciona um novo cliente à lista de clientes atraves do gerente
-  public addCustomer(customer: Customer): void {
+  public async addCustomer(customer: Customer): Promise<void> {
     this.customers.push(customer);
   }
 
   // Lista todos os clientes
-  public getAllCustomers(): Customer[] {
-    return this.customers;
+  public async getAllCustomers(): Promise<CustomerEntity[]> {
+    return await this.customerRepository.findAll();
   }
 
   // Lista um único cliente

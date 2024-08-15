@@ -1,33 +1,35 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { Manager } from '../models/manager.model';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { ManagerEntity } from './manager.entity';
 
-@Entity('account')
-export class Customer {
+@Entity('customer')
+export class CustomerEntity {
   @PrimaryGeneratedColumn('uuid')
-  protected id: string; // id da conta
+  id: string; // id da conta
 
   @Column({ type: 'text' })
-  protected fullname: string; // nome completo
+  fullname: string; // nome completo
 
   @Column({ type: 'text' })
-  protected address: string; // endereço
+  address: string; // endereço
 
   @Column({ type: 'text' })
-  protected phone: string; // telefone
+  phone: string; // telefone
 
-  @Column({ type: 'int' })
-  protected income: number; // renda
+  @Column('decimal', { precision: 10, scale: 2 })
+  income: number; // renda
 
-  @Column({ type: 'text', nullable: true })
-  protected manager?: Manager; // gerente
+  @ManyToOne(() => ManagerEntity, (manager) => manager.customers, {
+    nullable: true,
+  })
+  manager?: ManagerEntity;
 
   constructor(
     fullname: string,
     address: string,
     phone: string,
     income: number,
-    manager?: Manager,
+    manager?: ManagerEntity,
   ) {
     this.id = uuidv4();
     this.fullname = fullname;

@@ -28,20 +28,23 @@ export class CustomerController {
 
   // Lista todos os clientes
   @Get('/')
-  async getAllCustomers(): Promise<ApiResponse<CustomerDto[]>> {
-    try {
-      const customers = this.customerService.getAllCustomers();
-      const customerDto = customers.map(
-        (customer) => new CustomerDto(customer),
-      );
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'Clientes carregados com sucesso!',
-        data: customerDto,
-      };
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-    }
+  // async getAllCustomers(): Promise<ApiResponse<CustomerDto[]>> {
+  //   try {
+  //     const customers = this.customerService.getAllCustomers();
+  //     const customerDto = customers.map(
+  //       (customer) => new CustomerDto(customer),
+  //     );
+  //     return {
+  //       statusCode: HttpStatus.OK,
+  //       message: 'Clientes carregados com sucesso!',
+  //       data: customerDto,
+  //     };
+  //   } catch (error) {
+  //     throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+  //   }
+  // }
+  async findAll() {
+    return await this.customerService.getAllCustomers();
   }
 
   // Lista um único cliente

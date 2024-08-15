@@ -3,8 +3,10 @@ import { ManagerModule } from './modules/manager.module';
 import { CustomerModule } from './modules/customer.module';
 import { AccountModule } from './modules/account.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customer } from './domain/entity/customer.entity';
 import { ConfigModule } from '@nestjs/config';
+import { AccountEntity } from './domain/entity/account/account.entity';
+import { CustomerEntity } from './domain/entity/customer.entity';
+import { ManagerEntity } from './domain/entity/manager.entity';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       host: process.env.DATABASE_HOST,
-      entities: [Customer],
+      entities: [AccountEntity, CustomerEntity, ManagerEntity],
       synchronize: true,
     }),
     CustomerModule,
