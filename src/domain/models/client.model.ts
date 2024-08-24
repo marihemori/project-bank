@@ -1,24 +1,24 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.model';
-import { Manager } from './manager.model';
 import { CheckingAccount } from './checkingAccount.model';
 import { SavingsAccount } from './savingsAccount.model';
 
-export class Customer {
-  private id: string;
-  private fullname: string;
-  private address: string;
-  private phone: string;
-  private income: number; // renda salarial
-  private accounts: (CheckingAccount | SavingsAccount)[] = [];
-  private manager?: Manager;
+export class Client {
+  public id: string;
+  public fullname: string;
+  public address: string;
+  public phone: string;
+  public income: number; // renda salarial
+  public accountType: (CheckingAccount | SavingsAccount)[] = [];
+  public manager?: string;
 
   constructor(
     fullname: string,
     address: string,
     phone: string,
     income: number,
-    manager?: Manager,
+    manager?: string,
+    accountType?: CheckingAccount | SavingsAccount,
   ) {
     this.id = uuidv4();
     this.fullname = fullname;
@@ -26,6 +26,7 @@ export class Customer {
     this.phone = phone;
     this.income = income;
     this.manager = manager;
+    this.accountType = accountType ? [accountType] : [];
   }
 
   public getId(): string {
@@ -49,19 +50,19 @@ export class Customer {
   }
 
   public getAccounts(): (CheckingAccount | SavingsAccount)[] {
-    return this.accounts;
+    return this.accountType;
   }
 
-  public getManager(): Manager {
-    return this.manager;
-  }
+  // public getManager(): Manager {
+  //   return this.manager;
+  // }
 
-  public setManager(manager: Manager): void {
-    this.manager = manager;
-  }
+  // public setManager(manager: Manager): void {
+  //   this.manager = manager;
+  // }
 
   public addAccount(account: CheckingAccount | SavingsAccount): void {
-    this.accounts.push(account);
+    this.accountType.push(account);
   }
 
   // Abrir uma conta para o cliente
@@ -87,7 +88,7 @@ export class Customer {
 
   // Fechar conta do cliente
   public closeAccount(account: Account): void {
-    this.accounts = this.accounts.filter(
+    this.accountType = this.accountType.filter(
       (acc) => acc.getId() !== account.getId(),
     );
   }

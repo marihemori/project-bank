@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { CustomerEntity } from './customer.entity';
+import { ClientEntity } from './client.entity';
 
-@Entity('manager')
+@Entity('managers')
 export class ManagerEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -10,12 +10,12 @@ export class ManagerEntity {
   @Column({ type: 'text' })
   fullname: string;
 
-  @OneToMany(() => CustomerEntity, (customer) => customer.manager)
-  customers: CustomerEntity[];
+  @OneToMany(() => ClientEntity, (client) => client.manager)
+  clients: ClientEntity[];
 
-  constructor(fullname: string, customers: []) {
+  constructor(fullname: string, clients: []) {
     this.id = uuidv4();
     this.fullname = fullname;
-    this.customers = customers;
+    this.clients = clients;
   }
 }

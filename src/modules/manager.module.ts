@@ -4,12 +4,16 @@ import { ManagerService } from '../domain/services/manager.service';
 import { ManagerRepository } from 'src/infrastructure/repositories/manager.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ManagerEntity } from 'src/domain/entity/manager.entity';
-import { CustomerModule } from './customer.module';
+import { ClientModule } from './client.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ManagerEntity]), CustomerModule],
+  imports: [TypeOrmModule.forFeature([ManagerEntity]), ClientModule],
   controllers: [ManagerController],
-  providers: [ManagerService, ManagerRepository],
+  providers: [
+    ManagerService,
+    ManagerRepository,
+    { provide: 'IManagerRepository', useClass: ManagerRepository },
+  ],
   exports: [ManagerService, ManagerRepository],
 })
 export class ManagerModule {}

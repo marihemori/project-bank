@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { AccountService } from '../domain/services/account.service';
 import { AccountController } from '../application/controllers/account.controller';
-import { CustomerModule } from './customer.module';
+import { ClientModule } from './client.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountEntity } from 'src/domain/entity/account/account.entity';
 import { AccountRepository } from 'src/infrastructure/repositories/account.repository';
@@ -9,7 +9,7 @@ import { AccountRepository } from 'src/infrastructure/repositories/account.repos
 @Module({
   imports: [
     TypeOrmModule.forFeature([AccountEntity]),
-    forwardRef(() => CustomerModule),
+    forwardRef(() => ClientModule),
   ],
   controllers: [AccountController],
   providers: [AccountService, AccountRepository],

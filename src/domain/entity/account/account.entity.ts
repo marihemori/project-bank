@@ -1,29 +1,33 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { AccountType } from '../../enums/accountType.enum';
-import { TransactionEntity } from '../transaction.entity';
+import { ClientEntity } from '../client.entity';
 
-@Entity('account')
-export abstract class AccountEntity {
+@Entity('accounts')
+export class AccountEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string; // id da conta
+  id: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  balance: number; // saldo
+  balance: number = 0;
 
-  @Column({ type: 'numeric' })
-  overdraft: number; // cheque especial
+  @Column()
+  accountType: AccountType;
 
-  @Column({ type: 'enum', enum: AccountType, default: AccountType.POUPANCA })
-  accountType: AccountType; // tipo de conta
+  @ManyToOne(() => ClientEntity, (client) => client.accounts, { eager: true })
+  @JoinColumn({ name: 'client_id' })
+  client: ClientEntity;
 
-  @OneToMany(() => TransactionEntity, (transaction) => transaction.account)
-  transactions: TransactionEntity[];
-
-  constructor(balance: number, overdraft: number, accountType: AccountType) {
+  constructor(balance: number, accountType: AccountType, client: ClientEntity) {
     this.id = uuidv4();
     this.balance = balance;
-    this.overdraft = overdraft;
     this.accountType = accountType;
+    this.client = client;
   }
 }

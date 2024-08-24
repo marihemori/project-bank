@@ -1,58 +1,69 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Manager } from '../models/manager.model';
-import { CustomerService } from './customer.service';
+import { ClientService } from './client.service';
 import { Account } from '../models/account.model';
 import { CheckingAccount } from '../models/checkingAccount.model';
 import { SavingsAccount } from '../models/savingsAccount.model';
-import { Customer } from '../models/customer.model';
+import { Client } from '../models/client.model';
+import { ManagerRepository } from 'src/infrastructure/repositories/manager.repository';
+import { ManagerEntity } from '../entity/manager.entity';
 
 @Injectable()
 export class ManagerService {
-  private managers: Manager[] = [];
+  // private managers: Manager[] = [];
+  public managers: ManagerEntity[] = [];
 
-  constructor(private readonly customerService: CustomerService) {}
+  constructor(
+    private readonly clientService: ClientService,
+
+    @Inject('IManagerRepository')
+    private readonly managersRepository: ManagerRepository,
+  ) {}
 
   // Listar gerentes
-  public getAllManagers(): Manager[] {
-    console.log(this.managers, 'gerentes');
-    return this.managers;
+  public getAllManagers(): Promise<ManagerEntity[]> {
+    const manager = this.managersRepository.findAll();
+    if (manager == null) {
+      throw new Error('Gerente não encontrado!');
+    }
+    return manager;
   }
 
   // Listar um único gerente
-  public getManagerById(managerId: string): Manager {
-    const manager = this.managers.find(
-      (manager) => manager.getId() === managerId,
-    );
-    if (!manager) {
+  public getManagerById(managerId: string): Promise<ManagerEntity> {
+    const manager = this.managersRepository.findById(managerId);
+
+    if (manager == null) {
       throw new Error('Gerente não encontrado!');
     }
     return manager;
   }
 
   // criar um gerente
-  public createManager(fullname: string): Manager {
-    const manager = new Manager(fullname);
-    this.managers.push(manager);
-    return manager;
-  }
+  // public async createManager(fullname: string): Promise<ManagerEntity> {
+  //   const manager = new Manager(fullname);
+  //   this.managers.push(manager);
+  //   await this.managersRepository.create(manager);
+  //   return manager;
+  // }
 
   // encontrar um gerente
-  public findManager(id: string): Manager {
-    return this.managers.find((manager) => manager.getId() === id);
-  }
+  // public findManager(id: string): Manager {
+  //   return this.managers.find((manager) => manager.getId() === id);
+  // }
 
   // Gerente abre uma conta para o cliente
-  public openAccount(
+  public async openAccount(
     fullname: string,
     address: string,
     phone: string,
     income: number,
     accountType: typeof CheckingAccount | typeof SavingsAccount,
     managerId: string,
-  ): Customer {
+  ): Promise<Client> {
     // Encontrar um gerente
-    const manager = this.findManager(managerId);
-    if (!manager) {
+    const manager = this.managersRepository.findById(managerId);
+    if (manager == null || manager == undefined) {
       throw new Error('Gerente não encontrado!');
     }
 
@@ -63,43 +74,44 @@ export class ManagerService {
       );
     }
 
-    // cria um novo cliente
-    const customer = new Customer(fullname, address, phone, income, manager);
+    //cria um novo cliente
+    const customer = new Client(fullname, address, phone, income, managerId);
 
+    console.log(customer);
     // Adiciona o cliente à lista de clientes usando o serviço
-    this.customerService.addCustomer(customer);
+    // this.customerService.addCustomer(customer);
 
     // adiciona o cliente a lista de clientes do gerente
-    manager.addCustomer(customer);
+    // manager.adicionarGerente(customer);
 
-    customer.openAccount(accountType);
+    // customer.openAccount(accountType);
 
-    return customer;
+    return null;
   }
 
   // Adicionar cliente ao gerente
-  public addCustomer(managerId: string, customerId: string): Manager {
-    const manager = this.findManager(managerId);
+  // public addClient(managerId: string, clientId: string): Promise<Manager> {
+  //   const manager = null;
 
-    if (!manager) {
-      throw new Error('Gerente não encontrado!');
-    }
+  //   if (!manager) {
+  //     throw new Error('Gerente não encontrado!');
+  //   }
 
-    const customer = this.customerService.getCustomerById(customerId);
-    if (!customer) {
-      throw new Error('Cliente não encontrado!');
-    }
+  //   const customer = this.clientService.getClientById(clientId);
+  //   if (!customer) {
+  //     throw new Error('Cliente não encontrado!');
+  //   }
 
-    manager.addCustomer(customer);
-    customer.setManager(manager); // Atualiza o gerente do cliente
-    return manager;
-  }
+  //   manager.addCustomer(customer);
+  //   // customer.setManager(manager); // Atualiza o gerente do cliente
+  //   return manager;
+  // }
 
   // Remover cliente do gerente
-  public removeCustomer(managerId: string, clientId: string): Manager {
-    const manager = this.findManager(managerId);
+  public removeClient(managerId: string, clientId: string): Manager {
+    const manager = null;
     if (manager) {
-      manager.customers = manager.customers.filter(
+      manager.clients = manager.clients.filter(
         (client) => client.getId() !== clientId,
       );
     }
@@ -112,7 +124,7 @@ export class ManagerService {
     clientId: string,
     accountId: string,
   ): Manager {
-    const manager = this.findManager(managerId);
+    const manager = null;
     if (manager) {
       const client = manager.customers.find((c) => c.getId() === clientId);
       if (client) {
@@ -130,26 +142,26 @@ export class ManagerService {
     } else {
       throw new Error('Gerente não encontrado');
     }
-    return manager;
+    return null;
   }
 
   // muda tipo da conta
   public changeAccountType(
     managerId: string,
-    customerId: string,
+    clientId: string,
     accountId: string,
     newType: typeof CheckingAccount | typeof SavingsAccount,
   ): Manager {
-    const manager = this.findManager(managerId);
+    const manager = null;
     if (manager) {
-      const customer = manager.customers.find((c) => c.getId() === customerId);
-      if (customer) {
-        const accountIndex = customer
+      const client = manager.clients.find((c) => c.getId() === clientId);
+      if (client) {
+        const accountIndex = client
           .getAccounts()
           .findIndex((acc) => acc.getId() === accountId);
         if (accountIndex !== -1) {
           let newAccount: Account;
-          const oldAccount = customer.getAccounts()[accountIndex];
+          const oldAccount = client.getAccounts()[accountIndex];
           if (newType === CheckingAccount) {
             newAccount = new CheckingAccount(oldAccount.getBalance(), 500);
           } else {
@@ -159,10 +171,10 @@ export class ManagerService {
               0.01,
             );
           }
-          customer.getAccounts()[accountIndex] = newAccount;
+          client.getAccounts()[accountIndex] = newAccount;
         }
       }
     }
-    return manager;
+    return null;
   }
 }

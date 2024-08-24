@@ -13,9 +13,9 @@ import { ManagerService } from '../../domain/services/manager.service';
 import { CheckingAccount } from '../../domain/models/checkingAccount.model';
 import { SavingsAccount } from '../../domain/models/savingsAccount.model';
 import { ManagerDto } from 'src/application/dtos/manager.dto';
-import { OpenAccountDto } from '../dtos/openAccount.dto';
+// import { OpenAccountDto } from '../dtos/openAccount.dto';
 // import { AccountDto } from '../dtos/account.dto';
-import { CustomerDto } from '../dtos/customer.dto';
+// import { ClientDto } from '../dtos/client.dto';
 
 export interface ApiResponse<data> {
   statusCode: number;
@@ -27,10 +27,11 @@ export interface ApiResponse<data> {
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
 
+  //Resolvido
   @Get('/')
   async getAllManagers(): Promise<ApiResponse<ManagerDto[]>> {
     try {
-      const managers = this.managerService.getAllManagers();
+      const managers = await this.managerService.getAllManagers();
       const managerDto = managers.map((manager) => new ManagerDto(manager));
       return {
         statusCode: HttpStatus.OK,
@@ -43,6 +44,7 @@ export class ManagerController {
   }
 
   // Lista um único gerente
+  //Resolvido
   @Get('/:id')
   async getManagerById(
     @Param('id') managerId: string,
@@ -50,7 +52,7 @@ export class ManagerController {
     try {
       // Obtém o gerente como um objeto Manager
       const manager = this.managerService.getManagerById(managerId);
-      if (!manager) {
+      if (manager == null || manager == undefined) {
         throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
       }
 
@@ -71,87 +73,81 @@ export class ManagerController {
   }
 
   @Post('/create')
-  createManager(@Body() body: { fullname: string }) {
-    const manager = this.managerService.createManager(body.fullname);
-    return {
-      statusCode: HttpStatus.CREATED,
-      message: 'Gerente criado com sucesso!',
-      data: manager,
-    };
-  }
+  // createManager(@Body() body: { fullname: string }) {
+  //   const manager = this.managerService.createManager(body.fullname);
+  //   return {
+  //     statusCode: HttpStatus.CREATED,
+  //     message: 'Gerente criado com sucesso!',
+  //     data: manager,
+  //   };
+  // }
 
   // Gerente abre uma conta para o cliente
-  @Post(':id/open-account')
-  openAccount(
-    @Param('id') id: string,
-    @Body()
-    body: OpenAccountDto,
-  ): ApiResponse<CustomerDto> {
-    try {
-      const manager = this.managerService.getManagerById(id);
-      if (!manager) {
-        throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
-      }
+  // @Post(':id/open-account')
+  // openAccount(
+  //   @Param('id') id: string,
+  //   @Body()
+  //   body: OpenAccountDto,
+  // ): ApiResponse<CustomerDto> {
+  //   try {
+  //     const manager = this.managerService.getManagerById(id);
+  //     if (!manager) {
+  //       throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
+  //     }
 
-      const accountClass =
-        body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
+  //     const accountClass =
+  //       body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
 
-      const customer = this.managerService.openAccount(
-        body.fullname,
-        body.address,
-        body.phone,
-        body.income,
-        accountClass,
-        body.managerId,
-      );
+  //     const customer = this.managerService.openAccount(
+  //       body.fullname,
+  //       body.address,
+  //       body.phone,
+  //       body.income,
+  //       accountClass,
+  //       body.managerId,
+  //     );
 
-      const customerDto = new CustomerDto(customer);
+  //     const customerDto = new CustomerDto(customer);
 
-      return {
-        statusCode: HttpStatus.CREATED,
-        message: 'Conta aberta com sucesso!',
-        data: customerDto,
-      };
-    } catch (error) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: error.message,
-      };
-    }
-  }
+  //     return {
+  //       statusCode: HttpStatus.CREATED,
+  //       message: 'Conta aberta com sucesso!',
+  //       data: customerDto,
+  //     };
+  //   } catch (error) {
+  //     return {
+  //       statusCode: HttpStatus.BAD_REQUEST,
+  //       message: error.message,
+  //     };
+  //   }
+  // }
 
   // Adiciona um cliente a um gerente
-  @Post(':id/add-customer')
-  async addCustomer(
-    @Param('id') managerId: string,
-    @Body() body: { customerId: string },
-  ): Promise<ApiResponse<ManagerDto>> {
-    try {
-      const manager = this.managerService.addCustomer(
-        managerId,
-        body.customerId,
-      );
-      const managerDto = new ManagerDto(manager);
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'Cliente adicionado ao gerente com sucesso!',
-        data: managerDto,
-      };
-    } catch (error) {
-      return {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: error.message,
-      };
-    }
-  }
+  // @Post(':id/add-customer')
+  // async addClient(
+  //   @Param('id') managerId: string,
+  //   @Body() body: { customerId: string },
+  // ): Promise<ApiResponse<ManagerDto>> {
+  //   try {
+  //     const manager = this.managerService.addClient(managerId, body.customerId);
+  //     const managerDto = new ManagerDto(manager);
+  //     return {
+  //       statusCode: HttpStatus.OK,
+  //       message: 'Cliente adicionado ao gerente com sucesso!',
+  //       data: managerDto,
+  //     };
+  //   } catch (error) {
+  //     return {
+  //       statusCode: HttpStatus.BAD_REQUEST,
+  //       message: error.message,
+  //     };
+  //   }
+  // }
 
   // Remove um cliente de um gerente
-  @Delete(':id/remove-customer')
-  removeCustomer(
-    @Param('id') id: string,
-    @Body() body: { customerId: string },
-  ) {
-    const manager = this.managerService.removeCustomer(id, body.customerId);
+  @Delete(':id/remove-client')
+  removeClient(@Param('id') id: string, @Body() body: { clientId: string }) {
+    const manager = this.managerService.removeClient(id, body.clientId);
     return {
       statusCode: HttpStatus.OK,
       message: 'Cliente removido com sucesso',
@@ -162,11 +158,11 @@ export class ManagerController {
   @Delete(':id/close-account')
   closeAccount(
     @Param('id') id: string,
-    @Body() body: { customerId: string; accountId: string },
+    @Body() body: { clientId: string; accountId: string },
   ) {
     const manager = this.managerService.closeAccount(
       id,
-      body.customerId,
+      body.clientId,
       body.accountId,
     );
     return {
@@ -181,7 +177,7 @@ export class ManagerController {
     @Param('id') id: string,
     @Body()
     body: {
-      customerId: string;
+      clientId: string;
       accountId: string;
       newType: 'Corrente' | 'Poupança';
     },
@@ -190,7 +186,7 @@ export class ManagerController {
       body.newType === 'Corrente' ? CheckingAccount : SavingsAccount;
     const manager = this.managerService.changeAccountType(
       id,
-      body.customerId,
+      body.clientId,
       body.accountId,
       accountType,
     );

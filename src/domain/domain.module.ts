@@ -2,18 +2,18 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { AccountService } from './services/account.service';
-import { CustomerService } from './services/customer.service';
+import { ClientService } from './services/client.service';
 import { ManagerService } from './services/manager.service';
-import { AccountEntity } from './entity/account/account.entity';
-import { CustomerEntity } from './entity/customer.entity';
+import { AccountEntity } from './entity/account.entity';
+import { ClientEntity } from './entity/client.entity';
 import { ManagerEntity } from './entity/manager.entity';
 
 @Module({
   imports: [
     InfrastructureModule,
-    TypeOrmModule.forFeature([AccountEntity, CustomerEntity, ManagerEntity]),
+    TypeOrmModule.forFeature([AccountEntity, ClientEntity, ManagerEntity]),
   ],
-  providers: [AccountService, CustomerService, ManagerService],
-  exports: [AccountService, CustomerService, ManagerService],
+  providers: [AccountService, ClientService, ManagerService],
+  exports: [AccountService, ClientService, ManagerService],
 })
 export class DomainModule {}
