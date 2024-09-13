@@ -40,17 +40,17 @@ export class ManagerService {
   }
 
   // criar um gerente
-  // public async createManager(fullname: string): Promise<ManagerEntity> {
-  //   const manager = new Manager(fullname);
-  //   this.managers.push(manager);
-  //   await this.managersRepository.create(manager);
-  //   return manager;
-  // }
+  public async createManager(fullname: string): Promise<ManagerEntity> {
+    const manager = new Manager(fullname);
+    this.managers.push(manager);
+    await this.managersRepository.create(manager);
+    return manager;
+  }
 
   // encontrar um gerente
-  // public findManager(id: string): Manager {
-  //   return this.managers.find((manager) => manager.getId() === id);
-  // }
+  public findManager(id: string): Manager {
+    return this.managers.find((manager) => manager.getId() === id);
+  }
 
   // Gerente abre uma conta para o cliente
   public async openAccount(
@@ -79,33 +79,33 @@ export class ManagerService {
 
     console.log(customer);
     // Adiciona o cliente à lista de clientes usando o serviço
-    // this.customerService.addCustomer(customer);
+    this.customerService.addCustomer(customer);
 
     // adiciona o cliente a lista de clientes do gerente
-    // manager.adicionarGerente(customer);
+    manager.adicionarGerente(customer);
 
-    // customer.openAccount(accountType);
+    customer.openAccount(accountType);
 
     return null;
   }
 
   // Adicionar cliente ao gerente
-  // public addClient(managerId: string, clientId: string): Promise<Manager> {
-  //   const manager = null;
+  public addClient(managerId: string, clientId: string): Promise<Manager> {
+    const manager = null;
 
-  //   if (!manager) {
-  //     throw new Error('Gerente não encontrado!');
-  //   }
+    if (!manager) {
+      throw new Error('Gerente não encontrado!');
+    }
 
-  //   const customer = this.clientService.getClientById(clientId);
-  //   if (!customer) {
-  //     throw new Error('Cliente não encontrado!');
-  //   }
+    const customer = this.clientService.getClientById(clientId);
+    if (!customer) {
+      throw new Error('Cliente não encontrado!');
+    }
 
-  //   manager.addCustomer(customer);
-  //   // customer.setManager(manager); // Atualiza o gerente do cliente
-  //   return manager;
-  // }
+    manager.addCustomer(customer);
+    customer.setManager(manager); // Atualiza o gerente do cliente
+    return manager;
+  }
 
   // Remover cliente do gerente
   public removeClient(managerId: string, clientId: string): Manager {

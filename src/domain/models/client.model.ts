@@ -53,13 +53,13 @@ export class Client {
     return this.accountType;
   }
 
-  // public getManager(): Manager {
-  //   return this.manager;
-  // }
+  public getManager(): Manager {
+    return this.manager;
+  }
 
-  // public setManager(manager: Manager): void {
-  //   this.manager = manager;
-  // }
+  public setManager(manager: Manager): void {
+    this.manager = manager;
+  }
 
   public addAccount(account: CheckingAccount | SavingsAccount): void {
     this.accountType.push(account);

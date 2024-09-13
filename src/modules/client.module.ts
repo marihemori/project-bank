@@ -5,6 +5,7 @@ import { AccountModule } from './account.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientEntity } from 'src/domain/entity/client.entity';
 import { ClientRepository } from 'src/infrastructure/repositories/client.repository';
+import { AccountFactory } from 'src/domain/factories/account.factory';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { ClientRepository } from 'src/infrastructure/repositories/client.reposit
     forwardRef(() => AccountModule),
   ],
   controllers: [ClientController],
-  providers: [ClientService, ClientRepository],
+  providers: [ClientService, ClientRepository, AccountFactory],
   exports: [ClientService, ClientRepository],
 })
 export class ClientModule {}

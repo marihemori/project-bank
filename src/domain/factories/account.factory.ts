@@ -1,22 +1,36 @@
-import { CreateClientDto } from 'src/application/dtos/createClient.dto';
 import { AccountType } from '../enums/accountType.enum';
 import { AccountEntity } from '../entity/account/account.entity';
-import { CorrenteAccountEntity } from '../entity/account/correnteAccount.entity';
-import { PoupancaAccountEntity } from '../entity/account/poupancaAccount.entity';
+import { CurrentAccountEntity } from '../entity/account/currentAccount.entity';
+import { SavingsAccountEntity } from '../entity/account/savingsAccount.entity';
+import { ClientEntity } from '../entity/client.entity';
 
 export class AccountFactory {
   createAccount(
     accountType: AccountType,
     initialBalance: number,
-    client: CreateClientDto,
+    overdraft: number,
+    client: ClientEntity,
+    interestedRate: number,
   ): AccountEntity {
-    switch (accountType) {
-      case AccountType.CORRENTE:
-        return new CorrenteAccountEntity(initialBalance, client);
-      case AccountType.POUPANCA:
-        return new PoupancaAccountEntity(initialBalance, client);
-      default:
-        throw new Error('Account type not found');
+    const accountTypes = {
+      [AccountType.CURRENT]: new CurrentAccountEntity(
+        initialBalance,
+        overdraft,
+        client,
+      ),
+      [AccountType.SAVINGS]: new SavingsAccountEntity(
+        initialBalance,
+        interestedRate,
+        client,
+      ),
+    };
+
+    const account = accountTypes[accountType];
+
+    if (!account) {
+      throw new Error('Tipo de conta não encontrado!');
     }
+
+    return account;
   }
 }

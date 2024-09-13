@@ -6,7 +6,7 @@ export class SavingsAccount extends Account {
   private interestRate: number; // taxa de juros
 
   constructor(balance: number, overdraft: number, interestRate: number) {
-    super(balance, overdraft, AccountType.POUPANCA);
+    super(balance, overdraft, AccountType.SAVINGS);
     this.interestRate = interestRate;
   }
 

@@ -1,40 +1,44 @@
-import { Entity } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { AccountType } from '../../enums/accountType.enum';
 import { AccountEntity } from './account.entity';
 import { ClientEntity } from '../client.entity';
 
-@Entity('checkingAccount')
-export class CheckingAccountEntity extends AccountEntity {
+@Entity('currentAccount')
+export class CurrentAccountEntity extends AccountEntity {
+  @Column('decimal', { precision: 10, scale: 2 })
   public overdraft: number = 100.0; // cheque especial
-  public balance: number = 0;
+
+  @Column('decimal', { precision: 10, scale: 2 })
+  public balanceTotal: number = 0;
 
   constructor(balance: number, overdraft: number, client: ClientEntity) {
-    super(balance, AccountType.CORRENTE, client);
+    super(balance, AccountType.CURRENT, client);
     this.overdraft = overdraft;
-    this.balance = this.balance + this.overdraft;
+    this.balanceTotal = this.balance + this.overdraft;
   }
 
   // Depositar
   deposit(value: number): void {
     this.balance += value;
+    this.balanceTotal = this.balance + this.overdraft;
   }
 
   // Sacar
   withdraw(value: number): void {
-    if (this.balance >= value) {
-      this.balance -= value;
-    } else {
+    if (value > this.balance) {
       throw new Error('Saldo insuficiente para saque!');
     }
+
+    this.balance -= value;
+    this.balanceTotal = this.balance + this.overdraft;
   }
 
   // Transferir
   transfer(destination: AccountEntity, value: number): void {
-    if (this.balance >= value) {
-      this.balance -= value;
-      destination.deposit(value);
-    } else {
+    if (value > this.balanceTotal) {
       throw new Error('Saldo insuficiente para transferência');
     }
+    this.withdraw(value);
+    destination.deposit(value);
   }
 }

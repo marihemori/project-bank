@@ -13,9 +13,9 @@ import { ManagerService } from '../../domain/services/manager.service';
 import { CheckingAccount } from '../../domain/models/checkingAccount.model';
 import { SavingsAccount } from '../../domain/models/savingsAccount.model';
 import { ManagerDto } from 'src/application/dtos/manager.dto';
-// import { OpenAccountDto } from '../dtos/openAccount.dto';
-// import { AccountDto } from '../dtos/account.dto';
-// import { ClientDto } from '../dtos/client.dto';
+import { OpenAccountDto } from '../dtos/openAccount.dto';
+import { AccountDto } from '../dtos/account.dto';
+import { ClientDto } from '../dtos/client.dto';
 
 export interface ApiResponse<data> {
   statusCode: number;
@@ -73,76 +73,76 @@ export class ManagerController {
   }
 
   @Post('/create')
-  // createManager(@Body() body: { fullname: string }) {
-  //   const manager = this.managerService.createManager(body.fullname);
-  //   return {
-  //     statusCode: HttpStatus.CREATED,
-  //     message: 'Gerente criado com sucesso!',
-  //     data: manager,
-  //   };
-  // }
+  createManager(@Body() body: { fullname: string }) {
+    const manager = this.managerService.createManager(body.fullname);
+    return {
+      statusCode: HttpStatus.CREATED,
+      message: 'Gerente criado com sucesso!',
+      data: manager,
+    };
+  }
 
   // Gerente abre uma conta para o cliente
-  // @Post(':id/open-account')
-  // openAccount(
-  //   @Param('id') id: string,
-  //   @Body()
-  //   body: OpenAccountDto,
-  // ): ApiResponse<CustomerDto> {
-  //   try {
-  //     const manager = this.managerService.getManagerById(id);
-  //     if (!manager) {
-  //       throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
-  //     }
+  @Post(':id/open-account')
+  openAccount(
+    @Param('id') id: string,
+    @Body()
+    body: OpenAccountDto,
+  ): ApiResponse<CustomerDto> {
+    try {
+      const manager = this.managerService.getManagerById(id);
+      if (!manager) {
+        throw new HttpException('Gerente não encontrado', HttpStatus.NOT_FOUND);
+      }
 
-  //     const accountClass =
-  //       body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
+      const accountClass =
+        body.accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
 
-  //     const customer = this.managerService.openAccount(
-  //       body.fullname,
-  //       body.address,
-  //       body.phone,
-  //       body.income,
-  //       accountClass,
-  //       body.managerId,
-  //     );
+      const customer = this.managerService.openAccount(
+        body.fullname,
+        body.address,
+        body.phone,
+        body.income,
+        accountClass,
+        body.managerId,
+      );
 
-  //     const customerDto = new CustomerDto(customer);
+      const customerDto = new CustomerDto(customer);
 
-  //     return {
-  //       statusCode: HttpStatus.CREATED,
-  //       message: 'Conta aberta com sucesso!',
-  //       data: customerDto,
-  //     };
-  //   } catch (error) {
-  //     return {
-  //       statusCode: HttpStatus.BAD_REQUEST,
-  //       message: error.message,
-  //     };
-  //   }
-  // }
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Conta aberta com sucesso!',
+        data: customerDto,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: error.message,
+      };
+    }
+  }
 
   // Adiciona um cliente a um gerente
-  // @Post(':id/add-customer')
-  // async addClient(
-  //   @Param('id') managerId: string,
-  //   @Body() body: { customerId: string },
-  // ): Promise<ApiResponse<ManagerDto>> {
-  //   try {
-  //     const manager = this.managerService.addClient(managerId, body.customerId);
-  //     const managerDto = new ManagerDto(manager);
-  //     return {
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Cliente adicionado ao gerente com sucesso!',
-  //       data: managerDto,
-  //     };
-  //   } catch (error) {
-  //     return {
-  //       statusCode: HttpStatus.BAD_REQUEST,
-  //       message: error.message,
-  //     };
-  //   }
-  // }
+  @Post(':id/add-customer')
+  async addClient(
+    @Param('id') managerId: string,
+    @Body() body: { customerId: string },
+  ): Promise<ApiResponse<ManagerDto>> {
+    try {
+      const manager = this.managerService.addClient(managerId, body.customerId);
+      const managerDto = new ManagerDto(manager);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Cliente adicionado ao gerente com sucesso!',
+        data: managerDto,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: error.message,
+      };
+    }
+  }
 
   // Remove um cliente de um gerente
   @Delete(':id/remove-client')

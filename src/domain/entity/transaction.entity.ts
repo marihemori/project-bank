@@ -1,11 +1,11 @@
-// import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import {
   Column,
   Entity,
-  // ManyToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-// import { AccountEntity } from './account/account.entity';
+import { AccountEntity } from './account/account.entity';
 
 export enum TransactionType {
   DEPOSIT = 'deposit', // depositar
@@ -27,13 +27,13 @@ export class TransactionEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  // @ManyToOne(() => AccountEntity, (account) => account.transactions)
-  // account: AccountEntity;
+  @ManyToOne(() => AccountEntity, (account) => account.transactions)
+  account: AccountEntity;
 
-  // constructor(type: TransactionType, amount: number, account: AccountEntity) {
-  //   this.id = uuidv4();
-  //   this.type = type;
-  //   this.amount = amount;
-  //   this.account = account;
-  // }
+  constructor(type: TransactionType, amount: number, account: AccountEntity) {
+    this.id = uuidv4();
+    this.type = type;
+    this.amount = amount;
+    this.account = account;
+  }
 }

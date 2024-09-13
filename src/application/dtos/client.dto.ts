@@ -1,5 +1,6 @@
-import { CheckingAccount } from 'src/domain/models/checkingAccount.model';
-import { SavingsAccount } from 'src/domain/models/savingsAccount.model';
+import { AccountEntity } from 'src/domain/entity/account/account.entity';
+// import { CheckingAccount } from 'src/domain/models/checkingAccount.model';
+// import { SavingsAccount } from 'src/domain/models/savingsAccount.model';
 
 export class ClientDto {
   id: string;
@@ -8,7 +9,7 @@ export class ClientDto {
   phone: string;
   income: number;
   managerId?: string;
-  accountType: (CheckingAccount | SavingsAccount)[] = [];
+  accountType: AccountEntity[] = [];
 
   constructor(client) {
     this.id = client.id;

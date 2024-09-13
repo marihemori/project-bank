@@ -1,24 +1,21 @@
 import {
   Body,
-  // Body,
   Controller,
-  // Delete,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
   Param,
   Post,
-  // Param,
-  // Patch,
-  // Post,
+  Patch,
 } from '@nestjs/common';
 import { ClientService } from '../../domain/services/client.service';
-// import { CheckingAccount } from '../../domain/models/checkingAccount.model';
-// import { SavingsAccount } from '../../domain/models/savingsAccount.model';
-// import { Manager } from '../../domain/models/manager.model';
+import { CheckingAccount } from '../../domain/models/checkingAccount.model';
+import { SavingsAccount } from '../../domain/models/savingsAccount.model';
+import { Manager } from '../../domain/models/manager.model';
 import { ClientDto } from '../dtos/client.dto';
 import { CreateClientDto } from '../dtos/createClient.dto';
-// import { PaymentDto } from 'src/application/dtos/payment.dto';
+import { PaymentDto } from 'src/application/dtos/payment.dto';
 
 export interface ApiResponse<data> {
   statusCode: number;
@@ -86,190 +83,190 @@ export class ClientController {
   }
 
   // Cria um novo cliente
-  // @Post('/create')
-  // async openAccount(
-  //   @Body('fullname') fullname: string,
-  //   @Body('address') address: string,
-  //   @Body('phone') phone: string,
-  //   @Body('income') income: number,
-  //   @Body('accountType') accountType: 'Corrente' | 'Poupança',
-  //   @Body('manager') manager?: Manager,
-  // ): Promise<ApiResponse<CustomerDto>> {
-  //   try {
-  //     const accountClass =
-  //       accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
-  //     const customer = null;
-  // this.customerService.openAccount(
-  //   fullname,
-  //   address,
-  //   phone,
-  //   income,
-  //   accountClass,
-  //   manager,
-  // );
+  @Post('/create')
+  async openAccount(
+    @Body('fullname') fullname: string,
+    @Body('address') address: string,
+    @Body('phone') phone: string,
+    @Body('income') income: number,
+    @Body('accountType') accountType: 'Corrente' | 'Poupança',
+    @Body('manager') manager?: Manager,
+  ): Promise<ApiResponse<CustomerDto>> {
+    try {
+      const accountClass =
+        accountType === 'Corrente' ? CheckingAccount : SavingsAccount;
+      const customer = null;
+  this.customerService.openAccount(
+    fullname,
+    address,
+    phone,
+    income,
+    accountClass,
+    manager,
+  );
 
-  //     const customerDto = new CustomerDto(customer);
-  //     const response: ApiResponse<CustomerDto> = {
-  //       statusCode: HttpStatus.CREATED,
-  //       message: 'Conta aberta com sucesso!',
-  //       data: customerDto,
-  //     };
+      const customerDto = new CustomerDto(customer);
+      const response: ApiResponse<CustomerDto> = {
+        statusCode: HttpStatus.CREATED,
+        message: 'Conta aberta com sucesso!',
+        data: customerDto,
+      };
 
-  //     console.log('response', response);
+      console.log('response', response);
 
-  //     return response;
-  //   } catch (error) {
-  //     throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-  //   }
-  // }
+      return response;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   // Mudar tipo de conta
-  // @Patch(':id/change-account-type')
-  // async changeAccountType(
-  //   @Param('id') customerId: string,
-  //   @Body()
-  //   body: {
-  //     accountId: string;
-  //     newType: 'Corrente' | 'Poupança';
-  //   },
-  // ): Promise<ApiResponse<CustomerDto>> {
-  //   const accountType =
-  //     body.newType === 'Corrente' ? CheckingAccount : SavingsAccount;
-  //   try {
-  //     const customer = this.customerService.changeAccountType(
-  //       customerId,
-  //       body.accountId,
-  //       accountType,
-  //     );
-  //     const customerDto = new CustomerDto(customer); // converte para CustomerDto
-  //     return {
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Tipo de conta atualizada com sucesso!',
-  //       data: customerDto,
-  //     };
-  //   } catch (error) {
-  //     return {
-  //       statusCode: HttpStatus.NOT_FOUND,
-  //       message: error.message,
-  //     };
-  //   }
-  // }
+  @Patch(':id/change-account-type')
+  async changeAccountType(
+    @Param('id') customerId: string,
+    @Body()
+    body: {
+      accountId: string;
+      newType: 'Corrente' | 'Poupança';
+    },
+  ): Promise<ApiResponse<CustomerDto>> {
+    const accountType =
+      body.newType === 'Corrente' ? CheckingAccount : SavingsAccount;
+    try {
+      const customer = this.customerService.changeAccountType(
+        customerId,
+        body.accountId,
+        accountType,
+      );
+      const customerDto = new CustomerDto(customer); // converte para CustomerDto
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Tipo de conta atualizada com sucesso!',
+        data: customerDto,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
 
   // Pagar boleto
-  // @Post('/:id/pay-boleto')
-  // async payBoleto(
-  //   @Param('id') customerId: string,
-  //   @Body()
-  //   body: {
-  //     accountId: string;
-  //     amount: number;
-  //     boletoNumber: string;
-  //   },
-  // ): Promise<
-  //   ApiResponse<{
-  //     customer: CustomerDto;
-  //     payment: PaymentDto;
-  //   }>
-  // > {
-  //   try {
-  //     const { customer, payment } = this.customerService.payBoleto(
-  //       customerId,
-  //       body.accountId,
-  //       body.amount,
-  //       body.boletoNumber,
-  //     );
+  @Post('/:id/pay-boleto')
+  async payBoleto(
+    @Param('id') customerId: string,
+    @Body()
+    body: {
+      accountId: string;
+      amount: number;
+      boletoNumber: string;
+    },
+  ): Promise<
+    ApiResponse<{
+      customer: CustomerDto;
+      payment: PaymentDto;
+    }>
+  > {
+    try {
+      const { customer, payment } = this.customerService.payBoleto(
+        customerId,
+        body.accountId,
+        body.amount,
+        body.boletoNumber,
+      );
 
-  //     return {
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Boleto pago com sucesso!',
-  //       data: {
-  //         customer,
-  //         payment,
-  //       },
-  //     };
-  //   } catch (error) {
-  //     return {
-  //       statusCode: HttpStatus.NOT_FOUND,
-  //       message: error.message,
-  //     };
-  //   }
-  // }
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Boleto pago com sucesso!',
+        data: {
+          customer,
+          payment,
+        },
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
 
   // Pagar pix
-  // @Post('/:id/pay-pix')
-  // async payPix(
-  //   @Param('id') customerId: string,
-  //   @Body()
-  //   body: {
-  //     accountId: string;
-  //     amount: number;
-  //     pixKey: string;
-  //   },
-  // ): Promise<
-  //   ApiResponse<{
-  //     customer: CustomerDto;
-  //     payment: PaymentDto;
-  //   }>
-  // > {
-  //   try {
-  //     const { customer, payment } = this.customerService.payPix(
-  //       customerId,
-  //       body.accountId,
-  //       body.amount,
-  //       body.pixKey,
-  //     );
-  //     return {
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Pix pago com sucesso!',
-  //       data: {
-  //         customer,
-  //         payment,
-  //       },
-  //     };
-  //   } catch (error) {
-  //     return {
-  //       statusCode: HttpStatus.NOT_FOUND,
-  //       message: error.message,
-  //     };
-  //   }
-  // }
+  @Post('/:id/pay-pix')
+  async payPix(
+    @Param('id') customerId: string,
+    @Body()
+    body: {
+      accountId: string;
+      amount: number;
+      pixKey: string;
+    },
+  ): Promise<
+    ApiResponse<{
+      customer: CustomerDto;
+      payment: PaymentDto;
+    }>
+  > {
+    try {
+      const { customer, payment } = this.customerService.payPix(
+        customerId,
+        body.accountId,
+        body.amount,
+        body.pixKey,
+      );
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Pix pago com sucesso!',
+        data: {
+          customer,
+          payment,
+        },
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
 
   // Fechar uma conta
-  // @Delete('/:id/close-account')
-  // async closeAccount(
-  //   @Param('id') id: string,
-  //   @Body() body: { accountId: string },
-  // ): Promise<ApiResponse<CustomerDto>> {
-  //   try {
-  //     const customer = this.customerService.closeAccount(id, body.accountId);
-  //     const customerDto = new CustomerDto(customer); // converte para CustomerDto
-  //     return {
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Conta fechada com sucesso!',
-  //       data: customerDto,
-  //     };
-  //   } catch (error) {
-  //     return {
-  //       statusCode: HttpStatus.NOT_FOUND,
-  //       message: error.message,
-  //     };
-  //   }
-  // }
+  @Delete('/:id/close-account')
+  async closeAccount(
+    @Param('id') id: string,
+    @Body() body: { accountId: string },
+  ): Promise<ApiResponse<CustomerDto>> {
+    try {
+      const customer = this.customerService.closeAccount(id, body.accountId);
+      const customerDto = new CustomerDto(customer); // converte para CustomerDto
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Conta fechada com sucesso!',
+        data: customerDto,
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
 
   // Excluir um cliente
-  // @Delete('/:id/delete')
-  // async deleteCustomer(@Param('id') customerId: string) {
-  //   try {
-  //     this.customerService.deleteClient(customerId);
-  //     return {
-  //       statusCode: HttpStatus.OK,
-  //       message: 'Cliente excluído com sucesso!',
-  //     };
-  //   } catch (error) {
-  //     return {
-  //       statusCode: HttpStatus.NOT_FOUND,
-  //       message: error.message,
-  //     };
-  //   }
-  // }
+  @Delete('/:id/delete')
+  async deleteCustomer(@Param('id') customerId: string) {
+    try {
+      this.customerService.deleteClient(customerId);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Cliente excluído com sucesso!',
+      };
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: error.message,
+      };
+    }
+  }
 }
