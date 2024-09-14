@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { RouterModule, Routes } from '@nestjs/core';
-import { CustomerModule } from '../modules/customer.module';
+import { ClientModule } from '../modules/client.module';
 
 const routes: Routes = [
   {
     path: '/',
-    module: CustomerModule,
+    module: ClientModule,
   },
 ];
 

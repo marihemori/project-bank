@@ -1,12 +1,18 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { AccountService } from '../services/account.service';
-import { AccountController } from '../controllers/account.controller';
-import { CustomerModule } from './customer.module';
+import { AccountService } from '../domain/services/account.service';
+import { AccountController } from '../application/controllers/account.controller';
+import { ClientModule } from './client.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccountEntity } from 'src/domain/entity/account/account.entity';
+import { AccountRepository } from 'src/infrastructure/repositories/account.repository';
 
 @Module({
-  imports: [forwardRef(() => CustomerModule)],
-  providers: [AccountService],
+  imports: [
+    TypeOrmModule.forFeature([AccountEntity]),
+    forwardRef(() => ClientModule),
+  ],
   controllers: [AccountController],
-  exports: [AccountService],
+  providers: [AccountService, AccountRepository],
+  exports: [AccountService, AccountRepository],
 })
 export class AccountModule {}
